@@ -1,0 +1,40 @@
+/**
+ * Configuración de la aplicación
+ */
+
+// API Base URL - usar API Gateway Nginx
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+
+// Microservices URLs (directo, sin Gateway - para desarrollo)
+export const MS_AUTH_URL = import.meta.env.VITE_MS_AUTH_URL || 'http://localhost:8001/api/v1/auth';
+export const MS_GEO_URL = import.meta.env.VITE_MS_GEO_URL || 'http://localhost:8003/api/v1/geo';
+export const MS_USER_URL = import.meta.env.VITE_MS_USER_URL || 'http://localhost:8002/api/v1/users';
+export const MS_REPORT_URL = import.meta.env.VITE_MS_REPORT_URL || 'http://localhost:8004/api/v1/reports';
+
+// Map Configuration
+export const MAP_CONFIG = {
+  center: [
+    parseFloat(import.meta.env.VITE_MAP_CENTER_LAT) || 4.7110,
+    parseFloat(import.meta.env.VITE_MAP_CENTER_LNG) || -74.0721
+  ],
+  zoom: parseInt(import.meta.env.VITE_MAP_ZOOM) || 6,
+  minZoom: 5,
+  maxZoom: 18
+};
+
+// App Configuration
+export const APP_CONFIG = {
+  name: 'Digital Twins',
+  version: '1.0.0',
+  maxShopkeepersPerSeller: 80,
+  maxSellersPerZone: 10
+};
+
+// Zone Colors (para el mapa)
+export const ZONE_COLORS = {
+  'Norte': '#E74C3C',
+  'Centro': '#3498DB',
+  'Sur': '#2ECC71',
+  'default': '#95A5A6'
+};
+

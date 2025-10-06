@@ -1,0 +1,70 @@
+/**
+ * Estilos globales de la aplicación
+ */
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Fix para Leaflet */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Mejoras de cards */
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Mejorar tablas */
+.table {
+  background-color: white;
+}
+
+/* Loading spinner centrado */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+/* Mejoras de botones */
+.btn {
+  font-weight: 500;
+}
+
+/* Espaciado consistente */
+.container-fluid {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Toast notifications */
+.Toastify__toast {
+  font-family: inherit;
+}
+
