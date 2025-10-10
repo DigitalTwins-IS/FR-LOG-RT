@@ -30,6 +30,15 @@ export const APP_CONFIG = {
   maxSellersPerZone: 10
 };
 
+// Feature Flags - Sprint 1
+export const FEATURES = {
+  enableDashboard: false,    // Sprint 2
+  enableReports: false,       // Sprint 2
+  enableMap: true,            // Sprint 1
+  enableSellers: true,        // Sprint 1
+  enableShopkeepers: true     // Sprint 1
+};
+
 // Zone Colors (para el mapa)
 export const ZONE_COLORS = {
   'Norte': '#E74C3C',
