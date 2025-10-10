@@ -78,13 +78,6 @@ const LoginPage = () => {
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </Button>
             </Form>
-
-            <div className="mt-3 text-center">
-              <small className="text-muted">
-                Usuario de prueba: admin@digitaltwins.com<br/>
-                Contraseña: admin123
-              </small>
-            </div>
           </Card.Body>
         </Card>
 

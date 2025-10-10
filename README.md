@@ -271,15 +271,6 @@ El build se genera en la carpeta `dist/`
 
 ---
 
-## 🎯 **Credenciales de Prueba**
-
-```
-Usuario: admin@digitaltwins.com
-Contraseña: admin123
-```
-
----
-
 ## 🤝 **Contribuir**
 
 1. Fork el repositorio
