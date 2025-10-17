@@ -123,3 +123,5 @@ docker build -t frontend:sprint2 .
 2. **Testing**: Probar con features activadas/desactivadas
 3. **Documentación**: Actualizar este archivo en cada sprint
 4. **Rollback**: Mantener versión con features desactivadas
+
+

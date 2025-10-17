@@ -30,13 +30,13 @@ function App() {
                   <>
                     <Navbar />
                     <Routes>
-                      <Route path="/" element={<Navigate to="/map" replace />} />
+                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
                       <Route path="/dashboard" element={<DashboardPage />} />
                       <Route path="/map" element={<MapPage />} />
                       <Route path="/sellers" element={<SellersPage />} />
                       <Route path="/shopkeepers" element={<ShopkeepersPage />} />
                       <Route path="/reports" element={<ReportsPage />} />
-                      <Route path="*" element={<Navigate to="/map" replace />} />
+                      <Route path="*" element={<Navigate to="/dashboard" replace />} />
                     </Routes>
                   </>
                 </PrivateRoute>
