@@ -227,6 +227,9 @@ const ShopkeepersPage = () => {
       console.error(error);
     }
   };
+const handleViewSales = (shopkeeper) => {
+  alert(`📊 Mostrando historial de ventas del tendero: ${shopkeeper.name}`);
+};
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -365,6 +368,14 @@ const ShopkeepersPage = () => {
                         onClick={() => handleDelete(shopkeeper.id)}
                       >
                         🗑️
+                      </Button>
+                      <Button
+                      size="sm"
+                      variant="warning"
+                      className="me-1 mb-1"
+                      onClick={() => handleViewSales(shopkeeper)}
+                      >
+                        📊 Ver ventas
                       </Button>
                     </td>
                   </tr>
