@@ -97,9 +97,9 @@ const RouteOptimizerPage = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxinline-size: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ margininset-block-end: '30px' }}>
+      <div style={{ marginBottom: '30px' }}>
         <h2 style={{ margin: 0 }}>🗺️ Optimizador de Rutas</h2>
         <p style={{ color: '#666', margin: '5px 0 0 0' }}>
           HU13: Genera rutas optimizadas para reducir tiempo de desplazamiento
@@ -110,7 +110,7 @@ const RouteOptimizerPage = () => {
       {error && (
         <div style={{
           padding: '15px',
-          margininset-block-end: '20px',
+          marginBottom: '20px',
           backgroundColor: '#f8d7da',
           color: '#721c24',
           border: '1px solid #f5c6cb',
@@ -140,28 +140,28 @@ const RouteOptimizerPage = () => {
         backgroundColor: 'white',
         border: '1px solid #ddd',
         borderRadius: '8px',
-        margininset-block-end: '20px',
+        marginBottom: '20px',
         overflow: 'hidden'
       }}>
         <div style={{
           padding: '15px',
           backgroundColor: '#f8f9fa',
-          borderinset-block-end: '1px solid #ddd',
+          borderBottom: '1px solid #ddd',
           fontWeight: 'bold'
         }}>
           📋 Configuración de Ruta
         </div>
         <div style={{ padding: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', margininset-block-end: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
             <div>
-              <label style={{ display: 'block', margininset-block-end: '5px', fontWeight: '500' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
                 Vendedor *
               </label>
               <select
                 value={selectedSeller}
                 onChange={(e) => setSelectedSeller(e.target.value)}
                 style={{
-                  inline-size: '100%',
+                  width: '100%',
                   padding: '8px',
                   border: '1px solid #ddd',
                   borderRadius: '4px',
@@ -178,7 +178,7 @@ const RouteOptimizerPage = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', margininset-block-end: '5px', fontWeight: '500' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
                 Latitud Inicio (Opcional)
               </label>
               <input
@@ -188,7 +188,7 @@ const RouteOptimizerPage = () => {
                 value={startLocation.latitude}
                 onChange={(e) => setStartLocation({...startLocation, latitude: e.target.value})}
                 style={{
-                  inline-size: '100%',
+                  width: '100%',
                   padding: '8px',
                   border: '1px solid #ddd',
                   borderRadius: '4px',
@@ -198,7 +198,7 @@ const RouteOptimizerPage = () => {
             </div>
 
             <div>
-              <label style={{ display: 'block', margininset-block-end: '5px', fontWeight: '500' }}>
+              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
                 Longitud Inicio (Opcional)
               </label>
               <input
@@ -208,7 +208,7 @@ const RouteOptimizerPage = () => {
                 value={startLocation.longitude}
                 onChange={(e) => setStartLocation({...startLocation, longitude: e.target.value})}
                 style={{
-                  inline-size: '100%',
+                  width: '100%',
                   padding: '8px',
                   border: '1px solid #ddd',
                   borderRadius: '4px',
@@ -221,7 +221,7 @@ const RouteOptimizerPage = () => {
               <button
                 onClick={getCurrentLocation}
                 style={{
-                  inline-size: '100%',
+                  width: '100%',
                   padding: '8px',
                   backgroundColor: '#6c757d',
                   color: 'white',
@@ -240,7 +240,7 @@ const RouteOptimizerPage = () => {
             onClick={handleGenerateRoute}
             disabled={loading || !selectedSeller}
             style={{
-              inline-size: '100%',
+              width: '100%',
               padding: '15px',
               backgroundColor: loading || !selectedSeller ? '#ccc' : '#007bff',
               color: 'white',
@@ -256,7 +256,7 @@ const RouteOptimizerPage = () => {
 
           {route && (
             <div style={{
-              margininset-block-start: '15px',
+              marginTop: '15px',
               padding: '12px',
               backgroundColor: '#d1ecf1',
               color: '#0c5460',
@@ -276,7 +276,7 @@ const RouteOptimizerPage = () => {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '15px',
-            margininset-block-end: '20px'
+            marginBottom: '20px'
           }}>
             <div style={{
               backgroundColor: 'white',
@@ -285,7 +285,7 @@ const RouteOptimizerPage = () => {
               padding: '20px',
               textAlign: 'center'
             }}>
-              <div style={{ color: '#666', margininset-block-end: '10px' }}>Total Tenderos</div>
+              <div style={{ color: '#666', marginBottom: '10px' }}>Total Tenderos</div>
               <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{route.statistics.total_shopkeepers}</div>
             </div>
 
@@ -296,7 +296,7 @@ const RouteOptimizerPage = () => {
               padding: '20px',
               textAlign: 'center'
             }}>
-              <div style={{ color: '#666', margininset-block-end: '10px' }}>Distancia Total</div>
+              <div style={{ color: '#666', marginBottom: '10px' }}>Distancia Total</div>
               <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{route.statistics.total_distance_km} km</div>
             </div>
 
@@ -307,7 +307,7 @@ const RouteOptimizerPage = () => {
               padding: '20px',
               textAlign: 'center'
             }}>
-              <div style={{ color: '#666', margininset-block-end: '10px' }}>Tiempo Viaje</div>
+              <div style={{ color: '#666', marginBottom: '10px' }}>Tiempo Viaje</div>
               <div style={{ fontSize: '32px', fontWeight: 'bold' }}>
                 {formatTime(route.statistics.estimated_travel_time_hours)}
               </div>
@@ -320,11 +320,11 @@ const RouteOptimizerPage = () => {
               padding: '20px',
               textAlign: 'center'
             }}>
-              <div style={{ color: '#666', margininset-block-end: '10px' }}>Tiempo Total</div>
+              <div style={{ color: '#666', marginBottom: '10px' }}>Tiempo Total</div>
               <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#007bff' }}>
                 {formatTime(route.statistics.estimated_total_time_hours)}
               </div>
-              <div style={{ fontSize: '12px', color: '#666', margininset-block-start: '5px' }}>
+              <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
                 (incluye {formatTime(route.statistics.estimated_visit_time_hours)} de visitas)
               </div>
             </div>
@@ -342,13 +342,13 @@ const RouteOptimizerPage = () => {
               <div style={{
                 padding: '15px',
                 backgroundColor: '#f8f9fa',
-                borderinset-block-end: '1px solid #ddd',
+                borderBottom: '1px solid #ddd',
                 fontWeight: 'bold'
               }}>
                 🗺️ Visualización de Ruta
               </div>
               <div style={{
-                block-size: '600px',
+                height: '600px',
                 backgroundColor: '#e9ecef',
                 display: 'flex',
                 alignItems: 'center',
@@ -357,24 +357,24 @@ const RouteOptimizerPage = () => {
                 padding: '20px',
                 textAlign: 'center'
               }}>
-                <div style={{ fontSize: '48px', margininset-block-end: '20px' }}>🗺️</div>
+                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🗺️</div>
                 <h3>Mapa Interactivo</h3>
-                <p style={{ color: '#666', maxinline-size: '400px' }}>
+                <p style={{ color: '#666', maxWidth: '400px' }}>
                   Para ver el mapa completo con marcadores y líneas de ruta, 
                   esta página debe integrarse con el sistema que tiene Leaflet instalado.
                 </p>
                 <div style={{
-                  margininset-block-start: '20px',
+                  marginTop: '20px',
                   padding: '15px',
                   backgroundColor: 'white',
                   borderRadius: '4px',
                   border: '1px solid #ddd',
-                  maxinline-size: '500px'
+                  maxWidth: '500px'
                 }}>
                   <strong>Coordenadas de la ruta:</strong>
-                  <div style={{ margininset-block-start: '10px', fontSize: '12px', textAlign: 'left' }}>
+                  <div style={{ marginTop: '10px', fontSize: '12px', textAlign: 'left' }}>
                     {route.route_points.slice(0, 3).map((point, i) => (
-                      <div key={i} style={{ margininset-block-end: '5px' }}>
+                      <div key={i} style={{ marginBottom: '5px' }}>
                         {i + 1}. {point.shopkeeper_name}: ({point.latitude.toFixed(4)}, {point.longitude.toFixed(4)})
                       </div>
                     ))}
@@ -394,16 +394,16 @@ const RouteOptimizerPage = () => {
               <div style={{
                 padding: '15px',
                 backgroundColor: '#f8f9fa',
-                borderinset-block-end: '1px solid #ddd',
+                borderBottom: '1px solid #ddd',
                 fontWeight: 'bold'
               }}>
                 📋 Orden de Visitas
               </div>
-              <div style={{ block-size: '600px', overflowY: 'auto' }}>
+              <div style={{ height: '600px', overflowY: 'auto' }}>
                 {route.route_points.map((point, index) => (
                   <div key={point.shopkeeper_id} style={{
                     padding: '15px',
-                    borderinset-block-end: '1px solid #eee'
+                    borderBottom: '1px solid #eee'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'start', gap: '10px' }}>
                       <span style={{
@@ -413,17 +413,17 @@ const RouteOptimizerPage = () => {
                         borderRadius: '4px',
                         fontSize: '12px',
                         fontWeight: 'bold',
-                        mininline-size: '30px',
+                        minWidth: '30px',
                         textAlign: 'center'
                       }}>
                         #{point.order}
                       </span>
                       <div style={{ flex: 1 }}>
                         <strong>{point.shopkeeper_name}</strong>
-                        <div style={{ fontSize: '12px', color: '#666', margininset-block-start: '5px' }}>
+                        <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
                           {point.address}
                         </div>
-                        <div style={{ margininset-block-start: '8px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
+                        <div style={{ marginTop: '8px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
                           {index > 0 && (
                             <span style={{
                               backgroundColor: '#17a2b8',
@@ -455,7 +455,7 @@ const RouteOptimizerPage = () => {
 
           {/* Información adicional */}
           <div style={{
-            margininset-block-start: '20px',
+            marginTop: '20px',
             padding: '20px',
             backgroundColor: '#d4edda',
             color: '#155724',
@@ -463,7 +463,7 @@ const RouteOptimizerPage = () => {
             borderRadius: '8px'
           }}>
             <strong>✅ Ruta optimizada generada exitosamente</strong>
-            <ul style={{ margininset-block-end: 0, margininset-block-start: '10px' }}>
+            <ul style={{ marginBottom: 0, marginTop: '10px' }}>
               <li>Distancia promedio entre paradas: <strong>{route.statistics.average_distance_between_stops_km} km</strong></li>
               <li>Velocidad promedio estimada: <strong>25 km/h</strong> (ciudad)</li>
               <li>Tiempo por visita estimado: <strong>10 minutos</strong></li>
@@ -481,7 +481,7 @@ const RouteOptimizerPage = () => {
           padding: '60px 20px',
           textAlign: 'center'
         }}>
-          <div style={{ fontSize: '64px', margininset-block-end: '20px' }}>🗺️</div>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🗺️</div>
           <h3 style={{ color: '#666' }}>Seleccione un vendedor y genere una ruta optimizada</h3>
           <p style={{ color: '#999' }}>
             El sistema calculará la mejor ruta para visitar todos los tenderos, minimizando la distancia total.
@@ -491,3 +491,5 @@ const RouteOptimizerPage = () => {
     </div>
   );
 };
+
+export default RouteOptimizerPage;
