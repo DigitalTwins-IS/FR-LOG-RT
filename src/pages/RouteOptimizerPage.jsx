@@ -1,450 +1,203 @@
+/**
+ * RouteOptimizerPage - Optimizador de Rutas (Versión Compacta + SOLID)
+ */
 import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-// Configuración de API
+// ============================================================================
+// CONFIGURACIÓN
+// ============================================================================
 const API_BASE_URL = 'http://localhost:8002/api/v1/users';
 
+// Fix iconos Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+// Factory de iconos (Open/Closed Principle)
+const createIcon = (color) => new L.Icon({
+  iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+});
+
+const icons = { start: createIcon('green'), end: createIcon('red'), waypoint: createIcon('blue') };
+
+// Utilidades (Single Responsibility Principle)
+const formatTime = (h) => `${Math.floor(h)}h ${Math.round((h - Math.floor(h)) * 60)}m`;
+const getIcon = (i, total) => i === 0 ? icons.start : i === total - 1 ? icons.end : icons.waypoint;
+const getLines = (points) => points?.slice(0, -1).map((p, i) => [[p.latitude, p.longitude], [points[i+1].latitude, points[i+1].longitude]]) || [];
+
+// ============================================================================
+// COMPONENTE PRINCIPAL
+// ============================================================================
 const RouteOptimizerPage = () => {
   const [sellers, setSellers] = useState([]);
   const [selectedSeller, setSelectedSeller] = useState('');
   const [route, setRoute] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [startLocation, setStartLocation] = useState({
-    latitude: '',
-    longitude: ''
-  });
+  const [startLocation, setStartLocation] = useState({ latitude: '', longitude: '' });
+  const [mapCenter, setMapCenter] = useState([4.6097, -74.0817]);
 
+  const token = () => localStorage.getItem('token');
+
+  // Cargar vendedores
   useEffect(() => {
-    loadSellers();
+    fetch(`${API_BASE_URL}/sellers`, { headers: { Authorization: `Bearer ${token()}` }})
+      .then(r => r.json())
+      .then(setSellers)
+      .catch(console.error);
   }, []);
 
-  const loadSellers = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/sellers`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await response.json();
-      setSellers(data);
-    } catch (err) {
-      console.error('Error loading sellers:', err);
+  // Centrar mapa
+  useEffect(() => {
+    if (route?.route_points?.[0]) {
+      setMapCenter([route.route_points[0].latitude, route.route_points[0].longitude]);
     }
-  };
+  }, [route]);
 
-  const handleGenerateRoute = async () => {
-    if (!selectedSeller) {
-      setError('Por favor seleccione un vendedor');
-      return;
-    }
-
+  // Generar ruta
+  const generateRoute = async () => {
+    if (!selectedSeller) return setError('Seleccione un vendedor');
+    
     setLoading(true);
     setError('');
     
     try {
-      const token = localStorage.getItem('token');
-      let url = `${API_BASE_URL}/sellers/${selectedSeller}/optimized-route`;
-      
       const params = new URLSearchParams();
       if (startLocation.latitude && startLocation.longitude) {
         params.append('start_latitude', startLocation.latitude);
         params.append('start_longitude', startLocation.longitude);
       }
       
-      if (params.toString()) {
-        url += '?' + params.toString();
-      }
-
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        throw new Error('Error al generar ruta');
-      }
-
-      const data = await response.json();
-      setRoute(data);
+      const url = `${API_BASE_URL}/sellers/${selectedSeller}/optimized-route${params.toString() ? '?' + params : ''}`;
+      const response = await fetch(url, { headers: { Authorization: `Bearer ${token()}` }});
+      
+      if (!response.ok) throw new Error('Error al generar ruta');
+      
+      setRoute(await response.json());
     } catch (err) {
-      setError(err.message || 'Error al generar ruta');
-      console.error('Error generating route:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const getCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setStartLocation({
-            latitude: position.coords.latitude.toFixed(7),
-            longitude: position.coords.longitude.toFixed(7)
-          });
-        },
-        (error) => {
-          setError('Error al obtener ubicación: ' + error.message);
-        }
-      );
-    } else {
-      setError('Geolocalización no disponible en este navegador');
-    }
+  // Obtener ubicación actual
+  const getLocation = () => {
+    if (!navigator.geolocation) return setError('Geolocalización no disponible');
+    
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setStartLocation({ 
+        latitude: pos.coords.latitude.toFixed(7), 
+        longitude: pos.coords.longitude.toFixed(7) 
+      }),
+      (err) => setError('Error al obtener ubicación: ' + err.message)
+    );
   };
 
-  const formatTime = (hours) => {
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
-    return `${h}h ${m}m`;
-  };
+  const routeLines = getLines(route?.route_points);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', maxWidth: '1600px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ marginBottom: '30px' }}>
-        <h2 style={{ margin: 0 }}>🗺️ Optimizador de Rutas</h2>
-        <p style={{ color: '#666', margin: '5px 0 0 0' }}>
-          HU13: Genera rutas optimizadas para reducir tiempo de desplazamiento
-        </p>
-      </div>
+      <h2>🗺️ Optimizador de Rutas</h2>
+      <p style={{ color: '#666' }}>Genera rutas optimizadas para reducir tiempo de desplazamiento</p>
 
-      {/* Error Alert */}
+      {/* Error */}
       {error && (
-        <div style={{
-          padding: '15px',
-          marginBottom: '20px',
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          border: '1px solid #f5c6cb',
-          borderRadius: '4px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
+        <div style={{ padding: '15px', marginBottom: '20px', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '4px', display: 'flex', justifyContent: 'space-between' }}>
           <span>{error}</span>
-          <button 
-            onClick={() => setError('')}
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '20px',
-              cursor: 'pointer',
-              color: '#721c24'
-            }}
-          >
-            ×
-          </button>
+          <button onClick={() => setError('')} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>×</button>
         </div>
       )}
 
-      {/* Formulario de configuración */}
-      <div style={{
-        backgroundColor: 'white',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        marginBottom: '20px',
-        overflow: 'hidden'
-      }}>
-        <div style={{
-          padding: '15px',
-          backgroundColor: '#f8f9fa',
-          borderBottom: '1px solid #ddd',
-          fontWeight: 'bold'
-        }}>
-          📋 Configuración de Ruta
-        </div>
-        <div style={{ padding: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                Vendedor *
-              </label>
-              <select
-                value={selectedSeller}
-                onChange={(e) => setSelectedSeller(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              >
-                <option value="">Seleccione un vendedor</option>
-                {sellers.map(seller => (
-                  <option key={seller.id} value={seller.id}>
-                    {seller.name} ({seller.total_shopkeepers || 0} tenderos)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                Latitud Inicio (Opcional)
-              </label>
-              <input
-                type="number"
-                step="0.0000001"
-                placeholder="4.6097100"
-                value={startLocation.latitude}
-                onChange={(e) => setStartLocation({...startLocation, latitude: e.target.value})}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
-                Longitud Inicio (Opcional)
-              </label>
-              <input
-                type="number"
-                step="0.0000001"
-                placeholder="-74.0817500"
-                value={startLocation.longitude}
-                onChange={(e) => setStartLocation({...startLocation, longitude: e.target.value})}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  border: '1px solid #ddd',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-              <button
-                onClick={getCurrentLocation}
-                style={{
-                  width: '100%',
-                  padding: '8px',
-                  backgroundColor: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                📍 Mi Ubicación
-              </button>
-            </div>
+      {/* Configuración */}
+      <div style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', marginBottom: '20px' }}>
+        <h5>⚙️ Configuración</h5>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '15px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Vendedor *</label>
+            <select value={selectedSeller} onChange={(e) => setSelectedSeller(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}>
+              <option value="">Seleccionar...</option>
+              {sellers.map(s => <option key={s.id} value={s.id}>{s.name} - {s.zone_name || 'Sin zona'}</option>)}
+            </select>
           </div>
-
-          <button
-            onClick={handleGenerateRoute}
-            disabled={loading || !selectedSeller}
-            style={{
-              width: '100%',
-              padding: '15px',
-              backgroundColor: loading || !selectedSeller ? '#ccc' : '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading || !selectedSeller ? 'not-allowed' : 'pointer',
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }}
-          >
-            {loading ? '⏳ Generando ruta...' : '🚀 Generar Ruta Optimizada'}
-          </button>
-
-          {route && (
-            <div style={{
-              marginTop: '15px',
-              padding: '12px',
-              backgroundColor: '#d1ecf1',
-              color: '#0c5460',
-              border: '1px solid #bee5eb',
-              borderRadius: '4px'
-            }}>
-              <strong>Algoritmo utilizado:</strong> {route.algorithm_used === 'nearest_neighbor' ? 'Vecino Más Cercano (Greedy)' : route.algorithm_used}
-            </div>
-          )}
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Latitud (Opcional)</label>
+            <input type="number" step="0.0000001" placeholder="4.6097100" value={startLocation.latitude} onChange={(e) => setStartLocation({...startLocation, latitude: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Longitud (Opcional)</label>
+            <input type="number" step="0.0000001" placeholder="-74.0817500" value={startLocation.longitude} onChange={(e) => setStartLocation({...startLocation, longitude: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <button onClick={getLocation} style={{ width: '100%', padding: '8px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>📍 Mi Ubicación</button>
+          </div>
         </div>
+        <button onClick={generateRoute} disabled={loading || !selectedSeller} style={{ width: '100%', padding: '15px', backgroundColor: loading || !selectedSeller ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: loading || !selectedSeller ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
+          {loading ? '⏳ Generando...' : '🚀 Generar Ruta'}
+        </button>
       </div>
 
-      {route && (
+      {route ? (
         <>
           {/* Estadísticas */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '15px',
-            marginBottom: '20px'
-          }}>
-            <div style={{
-              backgroundColor: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              <div style={{ color: '#666', marginBottom: '10px' }}>Total Tenderos</div>
-              <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{route.statistics.total_shopkeepers}</div>
-            </div>
-
-            <div style={{
-              backgroundColor: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              <div style={{ color: '#666', marginBottom: '10px' }}>Distancia Total</div>
-              <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{route.statistics.total_distance_km} km</div>
-            </div>
-
-            <div style={{
-              backgroundColor: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              <div style={{ color: '#666', marginBottom: '10px' }}>Tiempo Viaje</div>
-              <div style={{ fontSize: '32px', fontWeight: 'bold' }}>
-                {formatTime(route.statistics.estimated_travel_time_hours)}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
+            {[
+              { label: 'Total Tenderos', value: route.statistics.total_shopkeepers },
+              { label: 'Distancia Total', value: `${route.statistics.total_distance_km} km` },
+              { label: 'Tiempo Viaje', value: formatTime(route.statistics.estimated_travel_time_hours) },
+              { label: 'Tiempo Total', value: formatTime(route.statistics.estimated_total_time_hours), highlight: true }
+            ].map((stat, i) => (
+              <div key={i} style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center' }}>
+                <div style={{ color: '#666', marginBottom: '10px' }}>{stat.label}</div>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: stat.highlight ? '#007bff' : 'inherit' }}>{stat.value}</div>
               </div>
-            </div>
-
-            <div style={{
-              backgroundColor: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              <div style={{ color: '#666', marginBottom: '10px' }}>Tiempo Total</div>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#007bff' }}>
-                {formatTime(route.statistics.estimated_total_time_hours)}
-              </div>
-              <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-                (incluye {formatTime(route.statistics.estimated_visit_time_hours)} de visitas)
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Mapa y Lista */}
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
-            {/* Mapa (Placeholder - necesitarías Leaflet o Google Maps) */}
-            <div style={{
-              backgroundColor: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                padding: '15px',
-                backgroundColor: '#f8f9fa',
-                borderBottom: '1px solid #ddd',
-                fontWeight: 'bold'
-              }}>
-                🗺️ Visualización de Ruta
-              </div>
-              <div style={{
-                height: '600px',
-                backgroundColor: '#e9ecef',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                padding: '20px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '48px', marginBottom: '20px' }}>🗺️</div>
-                <h3>Mapa Interactivo</h3>
-                <p style={{ color: '#666', maxWidth: '400px' }}>
-                  Para ver el mapa completo con marcadores y líneas de ruta, 
-                  esta página debe integrarse con el sistema que tiene Leaflet instalado.
-                </p>
-                <div style={{
-                  marginTop: '20px',
-                  padding: '15px',
-                  backgroundColor: 'white',
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  maxWidth: '500px'
-                }}>
-                  <strong>Coordenadas de la ruta:</strong>
-                  <div style={{ marginTop: '10px', fontSize: '12px', textAlign: 'left' }}>
-                    {route.route_points.slice(0, 3).map((point, i) => (
-                      <div key={i} style={{ marginBottom: '5px' }}>
-                        {i + 1}. {point.shopkeeper_name}: ({point.latitude.toFixed(4)}, {point.longitude.toFixed(4)})
-                      </div>
-                    ))}
-                    {route.route_points.length > 3 && <div>... y {route.route_points.length - 3} más</div>}
-                  </div>
-                </div>
-              </div>
+            {/* Mapa */}
+            <div style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #ddd', fontWeight: 'bold' }}>🗺️ Visualización</div>
+              <MapContainer center={mapCenter} zoom={13} style={{ height: '600px', width: '100%' }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                {route.route_points.map((p, i) => (
+                  <Marker key={p.shopkeeper_id} position={[p.latitude, p.longitude]} icon={getIcon(i, route.route_points.length)}>
+                    <Popup>
+                      <strong>#{p.order} - {p.shopkeeper_name}</strong><br />
+                      <small>{p.address}</small>
+                      {p.distance_from_previous_km > 0 && (
+                        <><hr style={{ margin: '5px 0' }} /><small>📍 {p.distance_from_previous_km} km | 📏 Acumulado: {p.cumulative_distance_km} km</small></>
+                      )}
+                    </Popup>
+                  </Marker>
+                ))}
+                {routeLines.map((line, i) => <Polyline key={i} positions={line} color="#007bff" weight={3} opacity={0.7} />)}
+                {route.route_points[0] && <Circle center={[route.route_points[0].latitude, route.route_points[0].longitude]} radius={100} pathOptions={{ color: 'green', fillColor: 'green', fillOpacity: 0.2 }} />}
+              </MapContainer>
             </div>
 
-            {/* Lista de visitas */}
-            <div style={{
-              backgroundColor: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                padding: '15px',
-                backgroundColor: '#f8f9fa',
-                borderBottom: '1px solid #ddd',
-                fontWeight: 'bold'
-              }}>
-                📋 Orden de Visitas
-              </div>
+            {/* Lista */}
+            <div style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderBottom: '1px solid #ddd', fontWeight: 'bold' }}>📋 Orden de Visitas</div>
               <div style={{ height: '600px', overflowY: 'auto' }}>
-                {route.route_points.map((point, index) => (
-                  <div key={point.shopkeeper_id} style={{
-                    padding: '15px',
-                    borderBottom: '1px solid #eee'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'start', gap: '10px' }}>
-                      <span style={{
-                        backgroundColor: '#007bff',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        minWidth: '30px',
-                        textAlign: 'center'
-                      }}>
-                        #{point.order}
-                      </span>
+                {route.route_points.map((p, i) => (
+                  <div key={p.shopkeeper_id} style={{ padding: '15px', borderBottom: '1px solid #eee', backgroundColor: i === 0 ? '#e7f5e7' : i === route.route_points.length - 1 ? '#ffe7e7' : 'white' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <span style={{ backgroundColor: i === 0 ? '#28a745' : i === route.route_points.length - 1 ? '#dc3545' : '#007bff', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', minWidth: '30px', textAlign: 'center' }}>{p.order}</span>
                       <div style={{ flex: 1 }}>
-                        <strong>{point.shopkeeper_name}</strong>
-                        <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-                          {point.address}
-                        </div>
-                        <div style={{ marginTop: '8px', display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-                          {index > 0 && (
-                            <span style={{
-                              backgroundColor: '#17a2b8',
-                              color: 'white',
-                              padding: '2px 6px',
-                              borderRadius: '3px',
-                              fontSize: '11px'
-                            }}>
-                              🚗 {point.distance_from_previous_km} km
-                            </span>
-                          )}
-                          <span style={{
-                            backgroundColor: '#6c757d',
-                            color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '3px',
-                            fontSize: '11px'
-                          }}>
-                            📊 {point.cumulative_distance_km} km total
-                          </span>
-                        </div>
+                        <div style={{ fontWeight: 'bold' }}>{p.shopkeeper_name} {i === 0 && '🟢'} {i === route.route_points.length - 1 && '🔴'}</div>
+                        <div style={{ fontSize: '12px', color: '#666' }}>📍 {p.address}</div>
+                        {p.distance_from_previous_km > 0 && <div style={{ fontSize: '12px', color: '#007bff' }}>🚗 {p.distance_from_previous_km} km | Acum: {p.cumulative_distance_km} km</div>}
                       </div>
                     </div>
                   </div>
@@ -452,40 +205,11 @@ const RouteOptimizerPage = () => {
               </div>
             </div>
           </div>
-
-          {/* Información adicional */}
-          <div style={{
-            marginTop: '20px',
-            padding: '20px',
-            backgroundColor: '#d4edda',
-            color: '#155724',
-            border: '1px solid #c3e6cb',
-            borderRadius: '8px'
-          }}>
-            <strong>✅ Ruta optimizada generada exitosamente</strong>
-            <ul style={{ marginBottom: 0, marginTop: '10px' }}>
-              <li>Distancia promedio entre paradas: <strong>{route.statistics.average_distance_between_stops_km} km</strong></li>
-              <li>Velocidad promedio estimada: <strong>25 km/h</strong> (ciudad)</li>
-              <li>Tiempo por visita estimado: <strong>10 minutos</strong></li>
-              <li>Ahorro estimado vs ruta no optimizada: <strong>~20-30%</strong></li>
-            </ul>
-          </div>
         </>
-      )}
-
-      {!route && !loading && (
-        <div style={{
-          backgroundColor: 'white',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          padding: '60px 20px',
-          textAlign: 'center'
-        }}>
+      ) : !loading && (
+        <div style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '60px 20px', textAlign: 'center' }}>
           <div style={{ fontSize: '64px', marginBottom: '20px' }}>🗺️</div>
           <h3 style={{ color: '#666' }}>Seleccione un vendedor y genere una ruta optimizada</h3>
-          <p style={{ color: '#999' }}>
-            El sistema calculará la mejor ruta para visitar todos los tenderos, minimizando la distancia total.
-          </p>
         </div>
       )}
     </div>
