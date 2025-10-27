@@ -12,7 +12,6 @@ import MapPage from './pages/MapPage';
 import SellersPage from './pages/SellersPage';
 import ShopkeepersPage from './pages/ShopkeepersPage';
 import ReportsPage from './pages/ReportsPage';
-import RouteOptimizerPage from './pages/RouteOptimizerPage';
 
 function App() {
   return (
@@ -38,7 +37,6 @@ function App() {
                       <Route path="/shopkeepers" element={<ShopkeepersPage />} />
                       <Route path="/reports" element={<ReportsPage />} />
                       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                      <Route path="/route-optimizer" element={<RouteOptimizerPage />} />
                     </Routes>
                   </>
                 </PrivateRoute>

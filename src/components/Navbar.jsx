@@ -29,7 +29,6 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
             <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
             <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
-            <Nav.Link as={Link} to="/route-optimizer"> Rutas</Nav.Link>
           </Nav>
           <Nav>
             <NavDropdown title={user?.email || 'Usuario'} id="user-dropdown" align="end">
