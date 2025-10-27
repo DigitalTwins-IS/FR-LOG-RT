@@ -179,6 +179,25 @@ export const userService = {
   }
 };
 
+//route optimizer service
+  getOptimizedRoute: async (sellerId, params = {}) => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.start_latitude) {
+      queryParams.append('start_latitude', params.start_latitude);
+    }
+    if (params.start_longitude) {
+      queryParams.append('start_longitude', params.start_longitude);
+    }
+    
+    const queryString = queryParams.toString();
+    const url = `${MS_USER_URL}/sellers/${sellerId}/optimized-route${queryString ? '?' + queryString : ''}`;
+    
+    const response = await api.get(url);
+    return response.data;
+  };
+
+
 // ============================================================================
 // REPORT SERVICE
 // ============================================================================
