@@ -18,7 +18,7 @@ const Navbar = () => {
   return (
     <BSNavbar bg="dark" variant="dark" expand="lg">
       <Container>
-       <BSNavbar.Brand as={Link} to="/dashboard">
+      <BSNavbar.Brand as={Link} to="/dashboard">
           {APP_CONFIG.name}
         </BSNavbar.Brand>
         <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
@@ -29,6 +29,7 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
             <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
             <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
+            <Nav.Link as={Link} to="/route-optimizer">Rutas</Nav.Link>
           </Nav>
           <Nav>
             <NavDropdown title={user?.email || 'Usuario'} id="user-dropdown" align="end">
