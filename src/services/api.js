@@ -180,7 +180,9 @@ export const userService = {
 };
 
 //route optimizer service
-  getOptimizedRoute: async (sellerId, params = {}) => {
+export const routeOptimizerService = {
+  getOptimizedRoute:
+  async (sellerId, params = {}) => {
     const queryParams = new URLSearchParams();
     
     if (params.start_latitude) {
@@ -195,8 +197,8 @@ export const userService = {
     
     const response = await api.get(url);
     return response.data;
-  };
-
+  }
+};
 
 // ============================================================================
 // REPORT SERVICE
