@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Button, Modal, Form, Badge, Alert, Tabs, Tab } from 'react-bootstrap';
 import { userService } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ShopkeepersPage = () => {
@@ -227,8 +228,12 @@ const ShopkeepersPage = () => {
       console.error(error);
     }
   };
+
+const navigate = useNavigate();
 const handleViewSales = (shopkeeper) => {
-  alert(`📊 Mostrando historial de ventas del tendero: ${shopkeeper.name}`);
+  navigate(`/shopkeepers/${shopkeeper.id}/sales`, {
+    state: { shopkeeper },
+});
 };
 
   const getCurrentLocation = () => {
