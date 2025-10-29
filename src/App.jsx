@@ -13,6 +13,7 @@ import SellersPage from './pages/SellersPage';
 import ShopkeepersPage from './pages/ShopkeepersPage';
 import ReportsPage from './pages/ReportsPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
+import RouteOptimizerPage from './pages/RouteOptimizerPage';
 
 function App() {
   return (
@@ -31,14 +32,15 @@ function App() {
                   <>
                     <Navbar />
                     <Routes>
-                      <Route path="/" element={<Navigate to="/map" replace />} />
+                      <Route path="/" element={<Navigate to="/dashboard" replace />} />
                       <Route path="/dashboard" element={<DashboardPage />} />
                       <Route path="/map" element={<MapPage />} />
                       <Route path="/sellers" element={<SellersPage />} />
                       <Route path="/shopkeepers" element={<ShopkeepersPage />} />
                       <Route path="/shopkeepers/:id/sales" element={<SalesHistoryPage />} />
                       <Route path="/reports" element={<ReportsPage />} />
-                      <Route path="*" element={<Navigate to="/map" replace />} />
+                      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="/route-optimizer" element={<RouteOptimizerPage />} />
                     </Routes>
                   </>
                 </PrivateRoute>
