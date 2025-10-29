@@ -12,6 +12,7 @@ import MapPage from './pages/MapPage';
 import SellersPage from './pages/SellersPage';
 import ShopkeepersPage from './pages/ShopkeepersPage';
 import ReportsPage from './pages/ReportsPage';
+import SalesHistoryPage from './pages/SalesHistoryPage';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
                       <Route path="/map" element={<MapPage />} />
                       <Route path="/sellers" element={<SellersPage />} />
                       <Route path="/shopkeepers" element={<ShopkeepersPage />} />
+                      <Route path="/shopkeepers/:id/sales" element={<SalesHistoryPage />} />
                       <Route path="/reports" element={<ReportsPage />} />
                       <Route path="*" element={<Navigate to="/map" replace />} />
                     </Routes>
