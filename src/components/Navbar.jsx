@@ -4,12 +4,10 @@
 import { Navbar as BSNavbar, Nav, Container, NavDropdown } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useAuth as useAuthHook } from '../hooks/useAuth';
 import { APP_CONFIG } from '../config';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const { hasPermission } = useAuthHook();
+  const { user, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -31,6 +29,9 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
             <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
             <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
+            {hasPermission('users.manage') && (
+              <Nav.Link as={Link} to="/users">Usuarios</Nav.Link>
+            )}
           </Nav>
           <Nav>
             <NavDropdown title={user?.email || 'Usuario'} id="user-dropdown" align="end">
