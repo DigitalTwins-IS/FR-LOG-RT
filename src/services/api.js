@@ -56,6 +56,47 @@ export const authService = {
   me: async () => {
     const response = await api.get(`${MS_AUTH_URL}/me`);
     return response.data;
+  },
+
+  // Gestión de Usuarios
+  getUsers: async (filters = {}) => {
+    const response = await api.get(`${MS_AUTH_URL}/users`, { params: filters });
+    return response.data;
+  },
+
+  getUser: async (id) => {
+    const response = await api.get(`${MS_AUTH_URL}/users/${id}`);
+    return response.data;
+  },
+
+  createUser: async (userData) => {
+    const response = await api.post(`${MS_AUTH_URL}/users`, userData);
+    return response.data;
+  },
+
+  updateUser: async (id, userData) => {
+    const response = await api.put(`${MS_AUTH_URL}/users/${id}`, userData);
+    return response.data;
+  },
+
+  toggleUserStatus: async (id) => {
+    const response = await api.patch(`${MS_AUTH_URL}/users/${id}/toggle-status`);
+    return response.data;
+  },
+
+  resetUserPassword: async (id) => {
+    const response = await api.post(`${MS_AUTH_URL}/users/${id}/reset-password`);
+    return response.data;
+  },
+
+  updateUserPassword: async (id, password) => {
+    const response = await api.patch(`${MS_AUTH_URL}/users/${id}/password`, { password });
+    return response.data;
+  },
+
+  getRoles: async () => {
+    const response = await api.get(`${MS_AUTH_URL}/users/roles`);
+    return response.data;
   }
 };
 
