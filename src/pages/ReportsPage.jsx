@@ -281,7 +281,7 @@ const ReportsPage = () => {
                 />
               )}
               <div className="text-center mt-3">
-                <strong>Promedio:</strong> {metrics?.avg_shopkeepers_per_seller?.toFixed(1)} tenderos/vendedor
+                <strong>Promedio:</strong> {Math.round(metrics?.avg_shopkeepers_per_seller || 0)} tenderos/vendedor
               </div>
             </Card.Body>
           </Card>
@@ -353,7 +353,7 @@ const ReportsPage = () => {
             <Card.Header className="d-flex justify-content-between align-items-center">
               <strong>👥 Rendimiento de Vendedores</strong>
               <span className="text-muted">
-                Promedio: {performance?.avg_shopkeepers_per_seller?.toFixed(1)} tenderos/vendedor
+                Promedio: {Math.round(performance?.avg_shopkeepers_per_seller || 0)} tenderos/vendedor
               </span>
             </Card.Header>
             <Card.Body>

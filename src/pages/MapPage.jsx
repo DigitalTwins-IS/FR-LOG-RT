@@ -1,3 +1,7 @@
+/**
+ * Página del Mapa - HU1
+ * Como administrador, quiero ver ciudades y zonas en el mapa
+ */
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, ListGroup, Badge } from 'react-bootstrap';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
