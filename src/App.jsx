@@ -15,6 +15,8 @@ import SellersPage from './pages/SellersPage';
 import ShopkeepersPage from './pages/ShopkeepersPage';
 import UsersPage from './pages/UsersPage';
 import ReportsPage from './pages/ReportsPage';
+import SalesHistoryPage from './pages/SalesHistoryPage';
+import RouteOptimizerPage from './pages/RouteOptimizerPage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
@@ -94,6 +96,7 @@ function App() {
                         } 
                       />
                       <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                      <Route path="/route-optimizer" element={<RouteOptimizerPage />} />
                     </Routes>
                   </>
                 </PrivateRoute>

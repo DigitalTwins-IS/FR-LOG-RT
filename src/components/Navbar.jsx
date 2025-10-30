@@ -20,30 +20,17 @@ const Navbar = () => {
   return (
     <BSNavbar bg="dark" variant="dark" expand="lg">
       <Container>
-       <BSNavbar.Brand as={Link} to="/dashboard">
+      <BSNavbar.Brand as={Link} to="/dashboard">
           {APP_CONFIG.name}
         </BSNavbar.Brand>
         <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BSNavbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            {hasPermission('dashboard.view') && (
-              <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
-            )}
-            {hasPermission('map.view') && (
-              <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
-            )}
-            {hasPermission('sellers.manage') && (
-              <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
-            )}
-            {hasPermission('shopkeepers.manage') && (
-              <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
-            )}
-            {hasPermission('users.manage') && (
-              <Nav.Link as={Link} to="/users">Usuarios</Nav.Link>
-            )}
-            {hasPermission('reports.view') && (
-              <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
-            )}
+            <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
+            <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
+            <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
+            <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
+            <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
           </Nav>
           <Nav>
             <NavDropdown title={user?.email || 'Usuario'} id="user-dropdown" align="end">
