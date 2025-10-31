@@ -9,8 +9,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 export const MS_AUTH_URL = import.meta.env.VITE_MS_AUTH_URL || 'http://localhost:8001/api/v1/auth';
 export const MS_GEO_URL = import.meta.env.VITE_MS_GEO_URL || 'http://localhost:8003/api/v1/geo';
 export const MS_USER_URL = import.meta.env.VITE_MS_USER_URL || 'http://localhost:8002/api/v1/users';
-export const MS_REPORT_URL = import.meta.env.VITE_MS_REPORT_URL || 'http://localhost:8003/api/v1/reports';
-export const MS_PRODUCT_URL = import.meta.env.VITE_MS_PRODUCT_URL || 'http://localhost:8005/api/v1/products';
+export const MS_REPORT_URL = import.meta.env.VITE_MS_REPORT_URL || 'http://localhost:8004/api/v1/reports';
 
 // Map Configuration
 export const MAP_CONFIG = {

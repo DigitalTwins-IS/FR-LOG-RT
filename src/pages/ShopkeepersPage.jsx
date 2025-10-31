@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Button, Modal, Form, Badge, Alert, Tabs, Tab } from 'react-bootstrap';
 import { userService } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ShopkeepersPage = () => {
@@ -228,6 +229,13 @@ const ShopkeepersPage = () => {
     }
   };
 
+const navigate = useNavigate();
+const handleViewSales = (shopkeeper) => {
+  navigate(`/shopkeepers/${shopkeeper.id}/sales`, {
+    state: { shopkeeper },
+});
+};
+
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -365,6 +373,14 @@ const ShopkeepersPage = () => {
                         onClick={() => handleDelete(shopkeeper.id)}
                       >
                         🗑️
+                      </Button>
+                      <Button
+                      size="sm"
+                      variant="warning"
+                      className="me-1 mb-1"
+                      onClick={() => handleViewSales(shopkeeper)}
+                      >
+                        📊 Ver ventas
                       </Button>
                     </td>
                   </tr>
