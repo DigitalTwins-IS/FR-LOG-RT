@@ -2,7 +2,7 @@
  * Servicio API - Cliente HTTP para consumir microservicios
  */
 import axios from 'axios';
-import { MS_AUTH_URL, MS_GEO_URL, MS_USER_URL, MS_REPORT_URL } from '../config';
+import { MS_AUTH_URL, MS_GEO_URL, MS_USER_URL, MS_REPORT_URL, MS_PRODUCT_URL } from '../config';
 
 // Crear instancia de axios
 const api = axios.create({
@@ -253,6 +253,58 @@ export const reportService = {
     });
     return response.data;
   }
+};
+
+// ============================================================================
+// PRODUCT SERVICE
+// ============================================================================
+
+export const productService = {
+  /**
+   * Obtener todos los productos.
+   * Si se envía un filtro de categoría, se aplica como parámetro.
+   */
+  getAll: async (category = null) => {
+    const params = {};
+    if (category) params.category = category;
+    const response = await api.get(`${MS_PRODUCT_URL}/`, { params });
+    return response.data;
+  },
+
+  /**
+   * Obtener un producto por su ID.
+   */
+  getById: async (id) => {
+    const response = await api.get(`${MS_PRODUCT_URL}/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Crear un nuevo producto.
+   */
+  createProduct: async (productData) => {
+    const response = await api.post(`${MS_PRODUCT_URL}/`, productData);
+    return response.data;
+  },
+
+  /**
+   * Actualizar un producto existente.
+   */
+  updateProduct: async (id, productData) => {
+    const response = await api.put(`${MS_PRODUCT_URL}/${id}`, productData);
+    return response.data;
+  },
+
+  /**
+   * Desactivar un producto (en lugar de eliminarlo físicamente).
+   * Esto envía un PUT con is_active = false.
+   */
+  deactivateProduct: async (id) => {
+    // El backend expone DELETE /{id} que hace soft delete (is_active=false)
+    const response = await api.delete(`${MS_PRODUCT_URL}/${id}`);
+    return response.data;
+  }
+  
 };
 
 export default api;
