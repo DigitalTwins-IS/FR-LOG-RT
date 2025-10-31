@@ -307,5 +307,31 @@ export const productService = {
   
 };
 
+// ============================================================
+// INVENTORY SERVICE (productos e inventarios desde MS_PRODUCT_URL)
+// ============================================================
+export const inventoryService = {
+  getProducts: async (category = null, isActive = true) => {
+    const params = {};
+    if (category) params.category = category;
+    if (isActive !== null) params.is_active = isActive;
+    return (await api.get(`${MS_PRODUCT_URL}/`, { params })).data;
+  },
+  createProduct: async (data) => (await api.post(`${MS_PRODUCT_URL}/`, data)).data,
+  getShopkeeperInventory: async (shopkeeperId, lowStockOnly = false) => {
+    const params = { low_stock_only: lowStockOnly };
+    return (await api.get(`${MS_PRODUCT_URL}/inventory/${shopkeeperId}`, { params })).data;
+  },
+  getInventorySummary: async (shopkeeperId) =>
+    (await api.get(`${MS_PRODUCT_URL}/inventory/${shopkeeperId}/summary`)).data,
+  addInventoryItem: async (data) => (await api.post(`${MS_PRODUCT_URL}/inventory`, data)).data,
+  updateInventoryItem: async (id, data) =>
+    (await api.put(`${MS_PRODUCT_URL}/inventory/${id}`, data)).data,
+  adjustStock: async (shopkeeperId, data) =>
+    (await api.post(`${MS_PRODUCT_URL}/inventory/${shopkeeperId}/adjust-stock`, data)).data,
+  deleteInventoryItem: async (id) => (await api.delete(`${MS_PRODUCT_URL}/inventory/${id}`)).data,
+  getCategories: async () => (await api.get(`${MS_PRODUCT_URL}/categories`)).data
+};
+
 export default api;
 
