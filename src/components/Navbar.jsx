@@ -28,6 +28,7 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
             <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
             <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
+            <Nav.Link as={Link} to="/inventory">Inventarios</Nav.Link>
             <Nav.Link as={Link} to="/products">Catálogo</Nav.Link>
             <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
             {hasPermission('users.manage') && (

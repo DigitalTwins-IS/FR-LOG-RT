@@ -18,6 +18,7 @@ import ReportsPage from './pages/ReportsPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
 import RouteOptimizerPage from './pages/RouteOptimizerPage';
 import ProductsPage from './pages/ProductsPage';
+import InventoryPage from './pages/InventoryPage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
@@ -96,6 +97,15 @@ function App() {
                           </ProtectedRoute>
                         } 
                       />
+
+                      <Route 
+                        path="/inventory" 
+                        element={
+                          <ProtectedRoute requiredPermission="inventory.view">
+                            <InventoryPage />
+                          </ProtectedRoute>    
+                        } 
+                        />
                       <Route 
                         path="/products" 
                         element={
@@ -103,7 +113,7 @@ function App() {
                             <ProductsPage />
                           </ProtectedRoute>
                         } 
-                      />
+                        />
                       
                       <Route path="*" element={<Navigate to="/dashboard" replace />} />
                       <Route path="/route-optimizer" element={<RouteOptimizerPage />} />
