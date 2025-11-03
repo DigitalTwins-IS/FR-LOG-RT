@@ -80,6 +80,15 @@ function App() {
                             <ShopkeepersPage />
                           </ProtectedRoute>
                         } 
+
+                      />
+                      <Route 
+                        path="/routes" 
+                        element={
+                          <ProtectedRoute requiredPermission="routes.view">
+                            <RouteOptimizerPage />
+                          </ProtectedRoute>
+                        }
                       />
                       <Route 
                         path="/users" 
