@@ -71,8 +71,11 @@ export const AuthProvider = ({ children }) => {
       'map.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
       'sellers.manage': ['ADMIN', 'TENDERO'],
       'shopkeepers.manage': ['ADMIN', 'TENDERO'],
-      'routes.view': ['ADMIN', 'VENDEDOR', 'TENDERO'],
-      'reports.view': ['ADMIN', 'TENDERO', 'VENDEDOR']
+      'reports.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
+      'products.manage': ['ADMIN'],
+      'products.view': ['ADMIN', 'VENDEDOR'],
+      'inventory.manage': ['ADMIN', 'VENDEDOR'],
+      'inventory.view': ['ADMIN', 'TENDERO', 'VENDEDOR']
     };
 
     const allowedRoles = permissions[permission] || [];
