@@ -23,7 +23,7 @@ import InventoryPage from './pages/InventoryPage';
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
   const { user } = useAuth();
-  
+
   if (user?.role === 'ADMIN') {
     return <Navigate to="/dashboard" replace />;
   } else {
@@ -49,72 +49,99 @@ function App() {
                     <Navbar />
                     <Routes>
                       <Route path="/" element={<NavigateToDefault />} />
-                      <Route 
-                        path="/dashboard" 
+                      <Route
+                        path="/dashboard"
                         element={
                           <ProtectedRoute requiredPermission="dashboard.view">
                             <DashboardPage />
                           </ProtectedRoute>
-                        } 
+                        }
                       />
-                      <Route 
-                        path="/map" 
+                      <Route
+                        path="/map"
                         element={
                           <ProtectedRoute requiredPermission="map.view">
                             <MapPage />
                           </ProtectedRoute>
-                        } 
+                        }
                       />
-                      <Route 
-                        path="/sellers" 
+                      <Route
+                        path="/sellers"
                         element={
                           <ProtectedRoute requiredPermission="sellers.manage">
                             <SellersPage />
                           </ProtectedRoute>
-                        } 
+                        }
                       />
-                      <Route 
-                        path="/shopkeepers" 
+                      <Route
+                        path="/shopkeepers"
                         element={
                           <ProtectedRoute requiredPermission="shopkeepers.manage">
                             <ShopkeepersPage />
                           </ProtectedRoute>
-                        } 
+                        }
                       />
-                      <Route 
-                        path="/users" 
+                      <Route
+                        path="/routes"
+                        element={
+                          <ProtectedRoute requiredPermission="routes.view">
+                            <RouteOptimizerPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/users"
                         element={
                           <ProtectedRoute requiredPermission="users.manage">
                             <UsersPage />
                           </ProtectedRoute>
-                        } 
+                        }
                       />
-                      <Route 
-                        path="/reports" 
+                      <Route
+                        path="/reports"
                         element={
                           <ProtectedRoute requiredPermission="reports.view">
                             <ReportsPage />
                           </ProtectedRoute>
-                        } 
+                        }
                       />
 
-                      <Route 
-                        path="/inventory" 
+                      <Route
+                        path="/inventory"
                         element={
                           <ProtectedRoute requiredPermission="inventory.view">
                             <InventoryPage />
-                          </ProtectedRoute>    
-                        } 
-                        />
-                      <Route 
-                        path="/products" 
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/inventory/manage"
+                        element={
+                          <ProtectedRoute requiredPermission="inventory.manage">
+                            <InventoryPage />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/products"
                         element={
                           <ProtectedRoute requiredPermission="products.view">
                             <ProductsPage />
                           </ProtectedRoute>
-                        } 
-                        />
+                        }
+                      />
                       
+                      <Route
+                        path="/products/manage"
+                        element={
+                          <ProtectedRoute requiredPermission="products.manage">
+                            <ProductsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+
                       <Route path="*" element={<Navigate to="/dashboard" replace />} />
                       <Route path="/route-optimizer" element={<RouteOptimizerPage />} />
                     </Routes>
