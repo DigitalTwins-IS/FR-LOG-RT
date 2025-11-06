@@ -71,6 +71,7 @@ export const AuthProvider = ({ children }) => {
       'map.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
       'sellers.manage': ['ADMIN', 'TENDERO'],
       'shopkeepers.manage': ['ADMIN', 'TENDERO'],
+      'routes.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Permiso para optimizador de rutas
       'reports.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
       'products.manage': ['ADMIN'],
       'products.view': ['ADMIN', 'VENDEDOR'],
