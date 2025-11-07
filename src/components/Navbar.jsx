@@ -18,7 +18,7 @@ const Navbar = () => {
   return (
     <BSNavbar bg="dark" variant="dark" expand="lg">
       <Container>
-      <BSNavbar.Brand as={Link} to="/dashboard">
+        <BSNavbar.Brand as={Link} to="/dashboard">
           {APP_CONFIG.name}
         </BSNavbar.Brand>
         <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
@@ -28,7 +28,9 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
             <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
             <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
-            <Nav.Link as={Link} to="/routes">Rutas</Nav.Link>
+            {hasPermission('routes.view') && (
+              <Nav.Link as={Link} to="/routes">Rutas</Nav.Link>
+            )}
             <Nav.Link as={Link} to="/inventory">Inventarios</Nav.Link>
             <Nav.Link as={Link} to="/products">Catálogo</Nav.Link>
             <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>

@@ -128,10 +128,11 @@ const InventoryPage = () => {
 
       await userService.addInventoryItem({
         shopkeeper_id: selectedShopkeeper.id,
-        product_id: selectedProduct.id, // Usar el ID del producto
-        stock: addForm.current_stock,
-        min_stock: addForm.min_stock,
-        max_stock: addForm.max_stock
+        product_id: selectedProduct.id,
+        current_stock: Math.round(addForm.current_stock || 0),
+        unit_price: addForm.unit_price || selectedProduct.price || 0,
+        min_stock: Math.round(addForm.min_stock || 0),
+        max_stock: Math.round(addForm.max_stock || 0)
       });
       toast.success('Producto agregado exitosamente');
       setShowAddModal(false);
@@ -151,9 +152,9 @@ const InventoryPage = () => {
     
     try {
       await userService.updateInventoryItem(currentItem.id, {
-        stock: currentItem.stock,
-        min_stock: currentItem.min_stock,
-        max_stock: currentItem.max_stock
+        current_stock: Math.round(currentItem.stock || 0),
+        min_stock: Math.round(currentItem.min_stock || 0),
+        max_stock: Math.round(currentItem.max_stock || 0)
       });
       toast.success('Item actualizado exitosamente');
     setShowEditModal(false);
@@ -174,7 +175,7 @@ const InventoryPage = () => {
     try {
       await userService.adjustStock(selectedShopkeeper.id, {
         product_id: adjustForm.product_id,
-        quantity: adjustForm.quantity,
+        quantity: Math.round(adjustForm.quantity || 0),
         notes: adjustForm.notes
       });
       toast.success(`Stock ajustado: ${adjustForm.quantity > 0 ? '+' : ''}${adjustForm.quantity}`);
@@ -256,24 +257,83 @@ const InventoryPage = () => {
 
       <Row>
         <Col md={3}>
-          <Card className="mb-3">
-            <Card.Header>
-              <h5 className="mb-0">Tenderos</h5>
+          <Card className="mb-3 shadow-sm border-0">
+            <Card.Header className="bg-gradient" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+              <h5 className="mb-0 text-white d-flex align-items-center">
+                <span className="me-2">🏪</span>
+                Tenderos
+                <Badge bg="light" text="dark" className="ms-2">{shopkeepers.length}</Badge>
+              </h5>
             </Card.Header>
-            <Card.Body style={{ maxHeight: '400px', overflowY: 'auto' }}>
-              {shopkeepers.map(shopkeeper => (
-                <div
-                  key={shopkeeper.id}
-                  onClick={() => setSelectedShopkeeper(shopkeeper)}
-                  className={`p-2 mb-2 rounded cursor-pointer ${
-                    selectedShopkeeper?.id === shopkeeper.id ? 'bg-primary text-white' : 'bg-light'
-                  }`}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="fw-bold">{shopkeeper.name}</div>
-                  <div className="small">{shopkeeper.business_name}</div>
+            <Card.Body style={{ maxHeight: '500px', overflowY: 'auto', padding: '0.5rem' }}>
+              {shopkeepers.length === 0 ? (
+                <div className="text-center text-muted py-4">
+                  <div className="mb-2">📭</div>
+                  <small>No hay tenderos disponibles</small>
                 </div>
-              ))}
+              ) : (
+                shopkeepers.map(shopkeeper => (
+                  <div
+                    key={shopkeeper.id}
+                    onClick={() => setSelectedShopkeeper(shopkeeper)}
+                    className={`p-3 mb-2 rounded transition-all ${
+                      selectedShopkeeper?.id === shopkeeper.id 
+                        ? 'bg-primary text-white shadow-sm' 
+                        : 'bg-white border border-light hover-shadow'
+                    }`}
+                    style={{ 
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      border: selectedShopkeeper?.id === shopkeeper.id ? '2px solid #0d6efd' : '1px solid #e9ecef'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedShopkeeper?.id !== shopkeeper.id) {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedShopkeeper?.id !== shopkeeper.id) {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
+                    }}
+                  >
+                    <div className="d-flex align-items-start">
+                      <div className={`rounded-circle d-flex align-items-center justify-content-center me-3 ${
+                        selectedShopkeeper?.id === shopkeeper.id ? 'bg-white text-primary' : 'bg-primary text-white'
+                      }`}
+                      style={{ width: '40px', height: '40px', fontSize: '1.2rem', flexShrink: 0 }}>
+                        🏪
+                      </div>
+                      <div className="flex-grow-1">
+                        <div className={`fw-bold mb-1 ${selectedShopkeeper?.id === shopkeeper.id ? 'text-white' : ''}`}>
+                          {shopkeeper.name}
+                        </div>
+                        {shopkeeper.business_name && (
+                          <div className={`small ${selectedShopkeeper?.id === shopkeeper.id ? 'text-white-50' : 'text-muted'}`}>
+                            <span className="me-1">🏢</span>
+                            {shopkeeper.business_name}
+                          </div>
+                        )}
+                        {selectedShopkeeper?.id === shopkeeper.id && inventory.length > 0 && (
+                          <div className="mt-2 pt-2 border-top border-white border-opacity-25">
+                            <small className="d-flex align-items-center">
+                              <span className="me-1">📦</span>
+                              {inventory.length} producto{inventory.length !== 1 ? 's' : ''}
+                            </small>
+                          </div>
+                        )}
+                      </div>
+                      {selectedShopkeeper?.id === shopkeeper.id && (
+                        <div className="text-white">
+                          <span>✓</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </Card.Body>
           </Card>
 
@@ -342,92 +402,150 @@ const InventoryPage = () => {
                 </Row>
               )}
 
-              <Card>
-                <Card.Header className="d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0">Inventario de {selectedShopkeeper.name}</h5>
-                  <Badge bg="secondary">{inventory.length} items</Badge>
+              <Card className="shadow-sm border-0">
+                <Card.Header className="bg-gradient d-flex justify-content-between align-items-center" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                  <h5 className="mb-0 text-white d-flex align-items-center">
+                    <span className="me-2">📦</span>
+                    Inventario de {selectedShopkeeper.name}
+                  </h5>
+                  <Badge bg="light" text="dark" className="fs-6">{inventory.length} {inventory.length === 1 ? 'item' : 'items'}</Badge>
                 </Card.Header>
-                <Table striped bordered hover responsive>
-                  <thead>
-                    <tr>
-                      <th>Producto</th>
-                      <th>Categoría</th>
-                      <th>Precio</th>
-                      <th>Stock</th>
-                      <th>Min/Max</th>
-                      <th>Estado</th>
-                      <th>Valor</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {inventory.length === 0 ? (
+                <div className="table-responsive">
+                  <Table striped bordered hover responsive className="mb-0">
+                    <thead className="table-dark">
                       <tr>
-                        <td colSpan="8" className="text-center text-muted">
-                          No hay productos en el inventario
-                        </td>
+                        <th className="align-middle">
+                          <span className="me-2">📦</span>Producto
+                        </th>
+                        <th className="align-middle">
+                          <span className="me-2">🏷️</span>Categoría
+                        </th>
+                        <th className="align-middle text-end">
+                          <span className="me-2">💰</span>Precio
+                        </th>
+                        <th className="align-middle text-center">
+                          <span className="me-2">📊</span>Stock
+                        </th>
+                        <th className="align-middle text-center">
+                          <span className="me-2">⚙️</span>Min/Max
+                        </th>
+                        <th className="align-middle text-center">
+                          <span className="me-2">📈</span>Estado
+                        </th>
+                        <th className="align-middle text-end">
+                          <span className="me-2">💵</span>Valor
+                        </th>
+                        <th className="align-middle text-center">
+                          <span className="me-2">⚡</span>Acciones
+                        </th>
                       </tr>
-                    ) : (
-                      inventory.map(item => (
-                        <tr key={item.id}>
-                          <td className="fw-bold">{item.product_name}</td>
-                          <td>
-                            <Badge bg="secondary">{item.category}</Badge>
-                          </td>
-                          <td>{formatCurrency(item.price)}</td>
-                          <td>
-                            <span className={item.stock < item.min_stock ? 'text-danger fw-bold' : 'fw-bold'}>
-                              {item.stock || 'N/A'}
-                            </span>
-                          </td>
-                          <td>
-                            <small className="text-muted">
-                              {item.min_stock} / {item.max_stock}
-                            </small>
-                          </td>
-                          <td>
-                            <Badge bg={getStockBadgeClass(item.stock_status)}>
-                              {getStockBadgeText(item.stock_status)}
-                            </Badge>
-                          </td>
-                          <td>{formatCurrency(item.stock * item.price)}</td>
-                          <td>
-                            <Button
-                              size="sm"
-                              variant="info"
-                              className="me-1"
-                              onClick={() => {
-                                setCurrentItem(item);
-                                setAdjustForm({ product_id: item.product_id, quantity: 0, notes: '' });
-                                setShowAdjustModal(true);
-                              }}
+                    </thead>
+                    <tbody>
+                      {inventory.length === 0 ? (
+                        <tr>
+                          <td colSpan="8" className="text-center text-muted py-5">
+                            <div className="mb-2" style={{ fontSize: '2rem' }}>📭</div>
+                            <div>No hay productos en el inventario</div>
+                            <Button 
+                              variant="primary" 
+                              size="sm" 
+                              className="mt-3"
+                              onClick={() => setShowAddModal(true)}
                             >
-                              📊
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="warning"
-                              className="me-1"
-                              onClick={() => {
-                                setCurrentItem(item);
-                                setShowEditModal(true);
-                              }}
-                            >
-                              ✏
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="danger"
-                              onClick={() => handleDeleteItem(item.id)}
-                            >
-                              🗑
+                             ➕ Agregar Primer Producto
                             </Button>
                           </td>
+                          </tr>
+                      ) : (
+                        inventory.map(item => (
+                          <tr key={item.id} className="align-middle">
+                            <td>
+                              <div className="d-flex align-items-center">
+                                <div className="me-2" style={{ fontSize: '1.2rem' }}>📦</div>
+                                <div>
+                                  <div className="fw-bold">{item.product_name}</div>
+                                  {item.product_description && (
+                                    <small className="text-muted d-block">{item.product_description.substring(0, 50)}...</small>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <Badge bg="secondary" className="px-2 py-1">{item.category || 'Sin categoría'}</Badge>
+                            </td>
+                            <td className="text-end">
+                              <span className="fw-semibold">{formatCurrency(item.price)}</span>
+                            </td>
+                            <td className="text-center">
+                              <span className={`fw-bold fs-5 ${item.stock < item.min_stock ? 'text-danger' : item.stock > item.max_stock ? 'text-warning' : 'text-success'}`}>
+                                {Math.round(item.stock || 0)}
+                              </span>
+                            </td>
+                            <td className="text-center">
+                              <div className="d-flex flex-column align-items-center">
+                                <small className="text-muted mb-1">
+                                  <span className="badge bg-info">Min: {Math.round(item.min_stock || 0)}</span>
+                                </small>
+                                <small className="text-muted">
+                                  <span className="badge bg-secondary">Max: {Math.round(item.max_stock || 0)}</span>
+                                </small>
+                              </div>
+                            </td>
+                            <td className="text-center">
+                              <Badge bg={getStockBadgeClass(item.stock_status)} className="px-3 py-2">
+                                {getStockBadgeText(item.stock_status)}
+                              </Badge>
+                            </td>
+                            <td className="text-end">
+                              <span className="fw-bold text-success">{formatCurrency(Math.round(item.stock || 0) * item.price)}</span>
+                            </td>
+                            <td>
+                              <div className="d-flex justify-content-center gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="info"
+                                  className="d-flex align-items-center justify-content-center"
+                                  style={{ width: '32px', height: '32px' }}
+                                  onClick={() => {
+                                    setCurrentItem(item);
+                                    setAdjustForm({ product_id: item.product_id, quantity: 0, notes: '' });
+                                    setShowAdjustModal(true);
+                                  }}
+                                  title="Ajustar Stock"
+                                >
+                                  📊
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="warning"
+                                  className="d-flex align-items-center justify-content-center"
+                                  style={{ width: '32px', height: '32px' }}
+                                  onClick={() => {
+                                    setCurrentItem(item);
+                                    setShowEditModal(true);
+                                  }}
+                                  title="Editar"
+                                >
+                                  ✏️
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="danger"
+                                  className="d-flex align-items-center justify-content-center"
+                                  style={{ width: '32px', height: '32px' }}
+                                  onClick={() => handleDeleteItem(item.id)}
+                                  title="Eliminar"
+                                >
+                                  🗑️
+                                </Button>
+                              </div>
+                            </td>
                           </tr>
                         ))
                       )}
                     </tbody>
                 </Table>
+                </div>
               </Card>
             </>
           )}
@@ -435,93 +553,138 @@ const InventoryPage = () => {
       </Row>
 
       {/* Modal para agregar producto */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>➕ Agregar Producto</Modal.Title>
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="lg">
+        <Modal.Header closeButton className="bg-primary text-white">
+          <Modal.Title className="d-flex align-items-center">
+            <span className="me-2">➕</span>
+            Agregar Producto al Inventario
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleAddProduct}>
-            <Form.Group className="mb-3">
-              <Form.Label>Producto</Form.Label>
-              <Form.Select
-                value={addForm.product_id}
-                onChange={(e) => {
-                  const productId = e.target.value;
-                  const selectedProduct = products.find(p => p.id === parseInt(productId));
-                  setAddForm({
-                    ...addForm, 
-                    product_id: productId,
-                    unit_price: selectedProduct ? selectedProduct.price : 0
-                  });
-                }}
-                required
-              >
-                  <option value="">Seleccione</option>
-                {products.filter(p => p.is_active).map(product => (
-                  <option key={product.id} value={product.id}>
-                    {product.name} - {formatCurrency(product.price)}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Row>
-              <Col md={3}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Stock</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={addForm.current_stock}
-                    onChange={(e) => setAddForm({...addForm, current_stock: parseFloat(e.target.value)})}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={3}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Precio Unitario</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={addForm.unit_price}
-                    onChange={(e) => setAddForm({...addForm, unit_price: parseFloat(e.target.value)})}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={3}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Min</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={addForm.min_stock}
-                    onChange={(e) => setAddForm({...addForm, min_stock: parseFloat(e.target.value)})}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={3}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Max</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={addForm.max_stock}
-                    onChange={(e) => setAddForm({...addForm, max_stock: parseFloat(e.target.value)})}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <div className="d-flex justify-content-end gap-2">
-              <Button variant="secondary" onClick={() => setShowAddModal(false)}>
-                Cancelar
+            <div className="border rounded p-3 mb-3 bg-light">
+              <h6 className="mb-3 text-muted">🛍️ Selección de Producto</h6>
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">
+                  <span className="me-2">📦</span>Producto
+                </Form.Label>
+                <Form.Select
+                  value={addForm.product_id}
+                  onChange={(e) => {
+                    const productId = e.target.value;
+                    const selectedProduct = products.find(p => p.id === parseInt(productId));
+                    setAddForm({
+                      ...addForm, 
+                      product_id: productId,
+                      unit_price: selectedProduct ? selectedProduct.price : 0
+                    });
+                  }}
+                  required
+                  className="border-primary"
+                >
+                  <option value="">Seleccione un producto...</option>
+                  {products.filter(p => p.is_active).map(product => (
+                    <option key={product.id} value={product.id}>
+                      {product.name} - {formatCurrency(product.price)}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Text className="text-muted">
+                  Seleccione el producto que desea agregar al inventario
+                </Form.Text>
+              </Form.Group>
+            </div>
+            <div className="border rounded p-3 mb-3 bg-light">
+              <h6 className="mb-3 text-muted">📊 Información del Producto</h6>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">
+                      <span className="me-2">📦</span>Stock Inicial
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={addForm.current_stock}
+                      onChange={(e) => setAddForm({...addForm, current_stock: parseInt(e.target.value) || 0})}
+                      placeholder="Cantidad inicial en inventario"
+                      required
+                    />
+                    <Form.Text className="text-muted">
+                      Cantidad de unidades disponibles
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">
+                      <span className="me-2">💰</span>Precio Unitario
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={addForm.unit_price}
+                      readOnly
+                      className="bg-white border-primary"
+                      required
+                    />
+                    <Form.Text className="text-success fw-semibold">
+                      Precio del producto seleccionado
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </div>
+
+            <div className="border rounded p-3 bg-light">
+              <h6 className="mb-3 text-muted">⚙️ Configuración de Stock</h6>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">
+                      <span className="me-2">⬇️</span>Stock Mínimo
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={addForm.min_stock}
+                      onChange={(e) => setAddForm({...addForm, min_stock: parseInt(e.target.value) || 0})}
+                      placeholder="Nivel mínimo de stock"
+                    />
+                    <Form.Text className="text-muted">
+                      Alerta cuando el stock esté por debajo de este valor
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">
+                      <span className="me-2">⬆️</span>Stock Máximo
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={addForm.max_stock}
+                      onChange={(e) => setAddForm({...addForm, max_stock: parseInt(e.target.value) || 0})}
+                      placeholder="Capacidad máxima de almacenamiento"
+                    />
+                    <Form.Text className="text-muted">
+                      Capacidad máxima de almacenamiento
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </div>
+            <div className="d-flex justify-content-end gap-2 mt-4">
+              <Button variant="outline-secondary" onClick={() => setShowAddModal(false)} size="lg">
+                <span className="me-2">❌</span>Cancelar
               </Button>
-              <Button variant="primary" type="submit">
-                Agregar
+              <Button variant="primary" type="submit" size="lg">
+                <span className="me-2">✅</span>Agregar Producto
               </Button>
               </div>
           </Form>
@@ -529,61 +692,94 @@ const InventoryPage = () => {
       </Modal>
 
       {/* Modal para editar item */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>✏ Editar Item</Modal.Title>
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
+        <Modal.Header closeButton className="bg-info text-white">
+          <Modal.Title className="d-flex align-items-center">
+            <span className="me-2">✏️</span>
+            Editar Item de Inventario
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleUpdateItem}>
             {currentItem && (
-              <Alert variant="info" className="mb-3">
-                <strong>Producto:</strong> {currentItem.product_name}
+              <Alert variant="info" className="mb-3 border-start border-4 border-info">
+                <div className="d-flex align-items-center">
+                  <span className="me-2">📦</span>
+                  <strong>Producto:</strong> <span className="ms-2">{currentItem.product_name}</span>
+                </div>
+                {currentItem.category && (
+                  <div className="d-flex align-items-center mt-2">
+                    <span className="me-2">🏷️</span>
+                    <strong>Categoría:</strong> <span className="ms-2 badge bg-secondary">{currentItem.category}</span>
+                  </div>
+                )}
               </Alert>
             )}
-            <Row>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Stock</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={currentItem?.stock || 0}
-                    onChange={(e) => setCurrentItem({...currentItem, stock: parseFloat(e.target.value)})}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Min</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={currentItem?.min_stock || 0}
-                    onChange={(e) => setCurrentItem({...currentItem, min_stock: parseFloat(e.target.value)})}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Max</Form.Label>
-                  <Form.Control
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={currentItem?.max_stock || 0}
-                    onChange={(e) => setCurrentItem({...currentItem, max_stock: parseFloat(e.target.value)})}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <div className="d-flex justify-content-end gap-2">
-              <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-                Cancelar
+            <div className="border rounded p-3 mb-3 bg-light">
+              <h6 className="mb-3 text-muted">⚙️ Configuración de Stock</h6>
+              <Row>
+                <Col md={4}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">
+                      <span className="me-2">📦</span>Stock Actual
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={currentItem?.stock || 0}
+                      onChange={(e) => setCurrentItem({...currentItem, stock: parseInt(e.target.value) || 0})}
+                      placeholder="Cantidad actual"
+                    />
+                    <Form.Text className="text-muted">
+                      Unidades disponibles
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">
+                      <span className="me-2">⬇️</span>Stock Mínimo
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={currentItem?.min_stock || 0}
+                      onChange={(e) => setCurrentItem({...currentItem, min_stock: parseInt(e.target.value) || 0})}
+                      placeholder="Nivel mínimo"
+                    />
+                    <Form.Text className="text-muted">
+                      Alerta cuando esté por debajo
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">
+                      <span className="me-2">⬆️</span>Stock Máximo
+                    </Form.Label>
+                    <Form.Control
+                      type="number"
+                      step="1"
+                      min="0"
+                      value={currentItem?.max_stock || 0}
+                      onChange={(e) => setCurrentItem({...currentItem, max_stock: parseInt(e.target.value) || 0})}
+                      placeholder="Capacidad máxima"
+                    />
+                    <Form.Text className="text-muted">
+                      Capacidad de almacenamiento
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </div>
+            <div className="d-flex justify-content-end gap-2 mt-4">
+              <Button variant="outline-secondary" onClick={() => setShowEditModal(false)} size="lg">
+                <span className="me-2">❌</span>Cancelar
               </Button>
-              <Button variant="primary" type="submit">
-                Actualizar
+              <Button variant="info" type="submit" size="lg" className="text-white">
+                <span className="me-2">💾</span>Actualizar Item
               </Button>
               </div>
           </Form>
@@ -598,54 +794,79 @@ const InventoryPage = () => {
         <Modal.Body>
           <Form onSubmit={handleAdjustStock}>
             {currentItem && (
-              <Alert variant="info" className="mb-3">
-                <div><strong>Producto:</strong> {currentItem.product_name}</div>
-                <div><strong>Stock actual:</strong> {currentItem.stock}</div>
+              <Alert variant="info" className="mb-3 border-start border-4 border-info">
+                <div className="d-flex align-items-center mb-2">
+                  <span className="me-2">📦</span>
+                  <strong>Producto:</strong> <span className="ms-2">{currentItem.product_name}</span>
+                </div>
+                <div className="d-flex align-items-center">
+                  <span className="me-2">📊</span>
+                  <strong>Stock actual:</strong> <span className="ms-2 badge bg-primary fs-6">{Math.round(currentItem.stock || 0)} unidades</span>
+                </div>
               </Alert>
             )}
+            <div className="border rounded p-3 mb-3 bg-light">
+              <h6 className="mb-3 text-muted">⚙️ Ajuste de Cantidad</h6>
+              <Form.Group className="mb-3">
+                <Form.Label className="fw-semibold">
+                  <span className="me-2">🔢</span>Cantidad a Ajustar
+                </Form.Label>
+                <div className="d-flex align-items-center gap-3">
+                  <Button
+                    variant="outline-danger"
+                    size="lg"
+                    onClick={() => setAdjustForm({...adjustForm, quantity: Math.max(0, (adjustForm.quantity || 0) - 1)})}
+                    className="px-4"
+                  >
+                    <strong>-</strong>
+                  </Button>
+                  <Form.Control
+                    type="number"
+                    step="1"
+                    value={adjustForm.quantity || 0}
+                    onChange={(e) => setAdjustForm({...adjustForm, quantity: parseInt(e.target.value) || 0})}
+                    className="text-center fs-4 fw-bold"
+                    style={{ maxWidth: '150px' }}
+                  />
+                  <Button
+                    variant="outline-success"
+                    size="lg"
+                    onClick={() => setAdjustForm({...adjustForm, quantity: (adjustForm.quantity || 0) + 1})}
+                    className="px-4"
+                  >
+                    <strong>+</strong>
+                  </Button>
+                </div>
+                <Form.Text className="text-muted mt-2 d-block">
+                  <span className="fw-semibold">Nuevo stock:</span> 
+                  <span className={`ms-2 badge ${(currentItem ? Math.round(currentItem.stock || 0) + Math.round(adjustForm.quantity || 0) : 0) < 0 ? 'bg-danger' : 'bg-success'} fs-6`}>
+                    {currentItem ? Math.round(currentItem.stock || 0) + Math.round(adjustForm.quantity || 0) : 0} unidades
+                  </span>
+                </Form.Text>
+              </Form.Group>
+            </div>
             <Form.Group className="mb-3">
-              <Form.Label>Cantidad</Form.Label>
-              <div className="d-flex align-items-center gap-2">
-                <Button
-                  variant="danger"
-                  onClick={() => setAdjustForm({...adjustForm, quantity: adjustForm.quantity - 1})}
-                >
-                  -
-                </Button>
-                <Form.Control
-                  type="number"
-                  step="0.01"
-                  value={adjustForm.quantity}
-                  onChange={(e) => setAdjustForm({...adjustForm, quantity: parseFloat(e.target.value)})}
-                  className="text-center"
-                />
-                <Button
-                  variant="success"
-                  onClick={() => setAdjustForm({...adjustForm, quantity: adjustForm.quantity + 1})}
-                >
-                  +
-                </Button>
-              </div>
-              <Form.Text className="text-muted">
-                Nuevo stock: {currentItem ? currentItem.stock + adjustForm.quantity : 0}
-              </Form.Text>
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Notas</Form.Label>
+              <Form.Label className="fw-semibold">
+                <span className="me-2">📝</span>Notas del Ajuste
+              </Form.Label>
               <Form.Control
                 as="textarea"
-                rows={2}
-                placeholder="Motivo del ajuste..."
+                rows={3}
+                placeholder="Ingrese el motivo del ajuste (opcional)..."
                 value={adjustForm.notes}
                 onChange={(e) => setAdjustForm({...adjustForm, notes: e.target.value})}
+                className="border-secondary"
               />
+              <Form.Text className="text-muted">
+                Ej: "Ajuste por inventario físico", "Devolución de cliente", etc.
+              </Form.Text>
             </Form.Group>
-            <div className="d-flex justify-content-end gap-2">
-              <Button variant="secondary" onClick={() => setShowAdjustModal(false)}>
-                Cancelar
+            <div className="d-flex justify-content-end gap-2 mt-4">
+              <Button variant="outline-secondary" onClick={() => setShowAdjustModal(false)} size="lg">
+                <span className="me-2">❌</span>Cancelar
               </Button>
-              <Button variant="primary" type="submit">
-                Ajustar
+              <Button variant="success" type="submit" size="lg">
+                <span className="me-2">✅</span>Aplicar Ajuste
               </Button>
               </div>
           </Form>
