@@ -1,5 +1,5 @@
 /**
- * RouteOptimizerPage - Optimizador de Rutas (Versión Compacta + SOLID)
+ * RouteOptimizerPage - Optimizador de Rutas
  */
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle } from 'react-leaflet';
@@ -10,6 +10,7 @@ import 'leaflet/dist/leaflet.css';
 // CONFIGURACIÓN
 // ============================================================================
 const API_BASE_URL = 'http://localhost:8002/api/v1/users';
+const MS_GEO_URL = 'http://localhost:8003/api/v1/geo';
 
 // Fix iconos Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -19,7 +20,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Factory de iconos (Open/Closed Principle)
+// Factory de iconos
 const createIcon = (color) => new L.Icon({
   iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -28,7 +29,7 @@ const createIcon = (color) => new L.Icon({
 
 const icons = { start: createIcon('green'), end: createIcon('red'), waypoint: createIcon('blue') };
 
-// Utilidades (Single Responsibility Principle)
+// Utilidades
 const formatTime = (h) => `${Math.floor(h)}h ${Math.round((h - Math.floor(h)) * 60)}m`;
 const getIcon = (i, total) => i === 0 ? icons.start : i === total - 1 ? icons.end : icons.waypoint;
 const getLines = (points) => points?.slice(0, -1).map((p, i) => [[p.latitude, p.longitude], [points[i+1].latitude, points[i+1].longitude]]) || [];
@@ -38,6 +39,7 @@ const getLines = (points) => points?.slice(0, -1).map((p, i) => [[p.latitude, p.
 // ============================================================================
 const RouteOptimizerPage = () => {
   const [sellers, setSellers] = useState([]);
+  const [zones, setZones] = useState([]);  // ✅ NUEVO
   const [selectedSeller, setSelectedSeller] = useState('');
   const [route, setRoute] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -47,12 +49,32 @@ const RouteOptimizerPage = () => {
 
   const token = () => localStorage.getItem('token');
 
-  // Cargar vendedores
+  // Función para obtener nombre de zona 
+  const getZoneName = (zoneId) => {
+    const zone = zones.find(z => z.id === zoneId);
+    return zone ? zone.name : 'Sin zona';
+  };
+
+  // Cargar vendedores Y zonas
   useEffect(() => {
-    fetch(`${API_BASE_URL}/sellers`, { headers: { Authorization: `Bearer ${token()}` }})
-      .then(r => r.json())
-      .then(setSellers)
-      .catch(console.error);
+    const loadData = async () => {
+      try {
+        const headers = { Authorization: `Bearer ${token()}` };
+        
+       
+        const [sellersData, zonesData] = await Promise.all([
+          fetch(`${API_BASE_URL}/sellers`, { headers }).then(r => r.json()),
+          fetch(`${MS_GEO_URL}/zones`, { headers }).then(r => r.json())
+        ]);
+        
+        setSellers(sellersData);
+        setZones(zonesData);
+      } catch (err) {
+        console.error('Error cargando datos:', err);
+      }
+    };
+    
+    loadData();
   }, []);
 
   // Centrar mapa
@@ -126,7 +148,11 @@ const RouteOptimizerPage = () => {
             <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Vendedor *</label>
             <select value={selectedSeller} onChange={(e) => setSelectedSeller(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}>
               <option value="">Seleccionar...</option>
-              {sellers.map(s => <option key={s.id} value={s.id}>{s.name} - {s.zone_name || 'Sin zona'}</option>)}
+              {sellers.map(s => (
+                <option key={s.id} value={s.id}>
+                  {s.name} - {getZoneName(s.zone_id)}
+                </option>
+              ))}
             </select>
           </div>
           <div>

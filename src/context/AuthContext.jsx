@@ -58,10 +58,44 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  // Helpers de roles y permisos centralizados
+  const hasRole = (allowedRoles) => {
+    if (!user || !user.role) return false;
+    return allowedRoles.includes(user.role);
+  };
+
+  const hasPermission = (permission) => {
+    const permissions = {
+      'users.manage': ['ADMIN'],
+      'dashboard.view': ['ADMIN', 'TENDERO'],
+      'map.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
+      'sellers.manage': ['ADMIN', 'TENDERO'],
+      'shopkeepers.manage': ['ADMIN', 'TENDERO'],
+      'routes.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Permiso para optimizador de rutas
+      'reports.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
+      'products.manage': ['ADMIN'],
+      'products.view': ['ADMIN', 'VENDEDOR'],
+      'inventory.manage': ['ADMIN', 'VENDEDOR'],
+      'inventory.view': ['ADMIN', 'TENDERO', 'VENDEDOR']
+    };
+
+    const allowedRoles = permissions[permission] || [];
+    return hasRole(allowedRoles);
+  };
+
+  const isAdmin = () => hasRole(['ADMIN']);
+  const isTendero = () => hasRole(['TENDERO']);
+  const isVendedor = () => hasRole(['VENDEDOR']);
+
   const value = {
     user,
     loading,
     isAuthenticated,
+    hasRole,
+    hasPermission,
+    isAdmin,
+    isTendero,
+    isVendedor,
     login,
     logout
   };

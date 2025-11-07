@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { APP_CONFIG } from '../config';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -28,8 +28,24 @@ const Navbar = () => {
             <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
             <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
             <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
-            <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
-            <Nav.Link as={Link} to="/route-optimizer">Rutas</Nav.Link>
+            {hasPermission('routes.view') && (
+              <Nav.Link as={Link} to="/routes">Rutas</Nav.Link>
+            )}
+            <Nav.Link as={Link} to="/inventory">Inventarios</Nav.Link>
+            <Nav.Link as={Link} to="/products">Catálogo</Nav.Link>
+            {hasPermission('reports.view') && (
+              <NavDropdown title="Reportes" id="reports-dropdown">
+                <NavDropdown.Item as={Link} to="/reports">
+                  📊 Reportes Generales
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/sales-comparison">
+                  📈 Comparación de Ventas
+                </NavDropdown.Item>
+              </NavDropdown>
+            )}
+            {hasPermission('users.manage') && (
+              <Nav.Link as={Link} to="/users">Usuarios</Nav.Link>
+            )}
           </Nav>
           <Nav>
             <NavDropdown title={user?.email || 'Usuario'} id="user-dropdown" align="end">
