@@ -217,7 +217,11 @@ export const userService = {
   unassignShopkeeper: async (assignmentId) => {
     const response = await api.delete(`${MS_USER_URL}/assignments/${assignmentId}`);
     return response.data;
+<<<<<<< HEAD
     },
+=======
+  },
+>>>>>>> origin/main
 
   // Inventory
   getInventory: async (shopkeeperId, lowStockOnly = false) => {
@@ -283,6 +287,12 @@ export const reportService = {
     const response = await api.post(`${MS_REPORT_URL}/export`, exportData, {
       responseType: 'blob'
     });
+    return response.data;
+  },
+
+  getSalesComparison: async (comparisonType = 'both') => {
+    const params = { comparison_type: comparisonType };
+    const response = await api.get(`${MS_REPORT_URL}/sales-comparison`, { params });
     return response.data;
   }
 };
