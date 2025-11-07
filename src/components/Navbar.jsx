@@ -33,7 +33,16 @@ const Navbar = () => {
             )}
             <Nav.Link as={Link} to="/inventory">Inventarios</Nav.Link>
             <Nav.Link as={Link} to="/products">Catálogo</Nav.Link>
-            <Nav.Link as={Link} to="/reports">Reportes</Nav.Link>
+            {hasPermission('reports.view') && (
+              <NavDropdown title="Reportes" id="reports-dropdown">
+                <NavDropdown.Item as={Link} to="/reports">
+                  📊 Reportes Generales
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/sales-comparison">
+                  📈 Comparación de Ventas
+                </NavDropdown.Item>
+              </NavDropdown>
+            )}
             {hasPermission('users.manage') && (
               <Nav.Link as={Link} to="/users">Usuarios</Nav.Link>
             )}

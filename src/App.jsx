@@ -15,6 +15,7 @@ import SellersPage from './pages/SellersPage';
 import ShopkeepersPage from './pages/ShopkeepersPage';
 import UsersPage from './pages/UsersPage';
 import ReportsPage from './pages/ReportsPage';
+import SalesComparisonPage from './pages/SalesComparisonPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
 import RouteOptimizerPage from './pages/RouteOptimizerPage';
 import ProductsPage from './pages/ProductsPage';
@@ -102,6 +103,14 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="reports.view">
                             <ReportsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/sales-comparison"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <SalesComparisonPage />
                           </ProtectedRoute>
                         }
                       />

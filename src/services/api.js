@@ -284,6 +284,12 @@ export const reportService = {
       responseType: 'blob'
     });
     return response.data;
+  },
+
+  getSalesComparison: async (comparisonType = 'both') => {
+    const params = { comparison_type: comparisonType };
+    const response = await api.get(`${MS_REPORT_URL}/sales-comparison`, { params });
+    return response.data;
   }
 };
 
