@@ -110,7 +110,7 @@ const DashboardPage = () => {
           <Card>
             <Card.Body>
               <Card.Title>Promedio</Card.Title>
-              <h3>{metrics?.avg_shopkeepers_per_seller?.toFixed(1) || 0}</h3>
+              <h3>{Math.round(metrics?.avg_shopkeepers_per_seller || 0)}</h3>
               <small className="text-muted">Tenderos por vendedor</small>
             </Card.Body>
           </Card>

@@ -217,6 +217,38 @@ export const userService = {
   unassignShopkeeper: async (assignmentId) => {
     const response = await api.delete(`${MS_USER_URL}/assignments/${assignmentId}`);
     return response.data;
+  },
+
+  // Inventory
+  getInventory: async (shopkeeperId, lowStockOnly = false) => {
+    const params = lowStockOnly ? { low_stock_only: true } : {};
+    const response = await api.get(`${MS_USER_URL}/inventory/${shopkeeperId}`, { params });
+    return response.data;
+  },
+
+  getInventorySummary: async (shopkeeperId) => {
+    const response = await api.get(`${MS_USER_URL}/inventory/${shopkeeperId}/summary`);
+    return response.data;
+  },
+
+  addInventoryItem: async (data) => {
+    const response = await api.post(`${MS_USER_URL}/inventory`, data);
+    return response.data;
+  },
+
+  updateInventoryItem: async (id, data) => {
+    const response = await api.put(`${MS_USER_URL}/inventory/${id}`, data);
+    return response.data;
+  },
+
+  deleteInventoryItem: async (id) => {
+    const response = await api.delete(`${MS_USER_URL}/inventory/${id}`);
+    return response.data;
+  },
+
+  adjustStock: async (shopkeeperId, data) => {
+    const response = await api.post(`${MS_USER_URL}/inventory/${shopkeeperId}/adjust-stock`, data);
+    return response.data;
   }
 };
 
