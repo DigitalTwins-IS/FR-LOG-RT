@@ -294,6 +294,31 @@ export const reportService = {
     const params = { comparison_type: comparisonType };
     const response = await api.get(`${MS_REPORT_URL}/sales-comparison`, { params });
     return response.data;
+  },
+
+  /**
+   * Obtiene el historial de ventas de un tendero específico
+   * permitiendo filtros por rango de fechas y opciones de paginación.
+   */
+  getShopkeeperSalesHistory: async (
+    shopkeeperId,
+    { startDate, endDate, page, pageSize } = {}
+  ) => {
+    if (!shopkeeperId) {
+      throw new Error('shopkeeperId es requerido para consultar ventas');
+    }
+
+    const params = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+    if (page) params.page = page;
+    if (pageSize) params.page_size = pageSize;
+
+    const response = await api.get(
+      `${MS_REPORT_URL}/sales-history/shopkeepers/${shopkeeperId}`,
+      { params }
+    );
+    return response.data;
   }
 };
 

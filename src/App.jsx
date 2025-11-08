@@ -83,6 +83,14 @@ function App() {
                         }
                       />
                       <Route
+                        path="/shopkeepers/:id/sales"
+                        element={
+                          <ProtectedRoute requiredPermission="shopkeepers.manage">
+                            <SalesHistoryPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
                         path="/routes"
                         element={
                           <ProtectedRoute requiredPermission="routes.view">
