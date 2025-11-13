@@ -1,8 +1,15 @@
 /**
- * RouteOptimizerPage - Optimizador de Rutas
+ * RouteOptimizerPage - Optimizador de Rutas (Versión 2.0 con APIs)
+ * 
+ * Cambios:
+ * - Integración con OpenRouteService
+ * - Muestra si viene de caché
+ * - Indica algoritmo usado
+ * - Permite forzar recálculo
+ * - Soporte para tenderos
  */
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -10,7 +17,6 @@ import 'leaflet/dist/leaflet.css';
 // CONFIGURACIÓN
 // ============================================================================
 const API_BASE_URL = 'http://localhost:8002/api/v1/users';
-const MS_GEO_URL = 'http://localhost:8003/api/v1/geo';
 
 // Fix iconos Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -39,7 +45,6 @@ const getLines = (points) => points?.slice(0, -1).map((p, i) => [[p.latitude, p.
 // ============================================================================
 const RouteOptimizerPage = () => {
   const [sellers, setSellers] = useState([]);
-  const [zones, setZones] = useState([]);  // ✅ NUEVO
   const [selectedSeller, setSelectedSeller] = useState('');
   const [route, setRoute] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -48,34 +53,44 @@ const RouteOptimizerPage = () => {
   const [mapCenter, setMapCenter] = useState([4.6097, -74.0817]);
 
   const token = () => localStorage.getItem('token');
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const isTendero = currentUser.role === 'TENDERO';
 
-  // Función para obtener nombre de zona 
-  const getZoneName = (zoneId) => {
-    const zone = zones.find(z => z.id === zoneId);
-    return zone ? zone.name : 'Sin zona';
-  };
-
-  // Cargar vendedores Y zonas
+  // Cargar vendedores
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const headers = { Authorization: `Bearer ${token()}` };
-        
-       
-        const [sellersData, zonesData] = await Promise.all([
-          fetch(`${API_BASE_URL}/sellers`, { headers }).then(r => r.json()),
-          fetch(`${MS_GEO_URL}/zones`, { headers }).then(r => r.json())
-        ]);
-        
-        setSellers(sellersData);
-        setZones(zonesData);
-      } catch (err) {
-        console.error('Error cargando datos:', err);
-      }
-    };
-    
-    loadData();
-  }, []);
+    if (!isTendero) {
+      fetch(`${API_BASE_URL}/sellers`, { headers: { Authorization: `Bearer ${token()}` }})
+        .then(r => r.json())
+        .then(setSellers)
+        .catch(console.error);
+    }
+  }, [isTendero]);
+
+  // Si es tendero, cargar su ruta automáticamente
+  useEffect(() => {
+    if (isTendero && currentUser.shopkeeper_id) {
+      loadShopkeeperRoute();
+    }
+  }, [isTendero]);
+
+  const loadShopkeeperRoute = async () => {
+    setLoading(true);
+    try {
+      const url = `${API_BASE_URL}/routes/optimize?shopkeeper_id=${currentUser.shopkeeper_id}`;
+      const response = await fetch(url, { headers: { Authorization: `Bearer ${token()}` }});
+      
+      if (!response.ok) throw new Error('No tienes vendedor asignado');
+      
+      const data = await response.json();
+      setRoute(data);
+      
+      console.log(`✅ Ruta cargada: ${data.from_cache ? 'desde caché' : 'nueva'} con ${data.algorithm_used}`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Centrar mapa
   useEffect(() => {
@@ -85,7 +100,7 @@ const RouteOptimizerPage = () => {
   }, [route]);
 
   // Generar ruta
-  const generateRoute = async () => {
+  const generateRoute = async (forceRecalculate = false) => {
     if (!selectedSeller) return setError('Seleccione un vendedor');
     
     setLoading(true);
@@ -98,12 +113,24 @@ const RouteOptimizerPage = () => {
         params.append('start_longitude', startLocation.longitude);
       }
       
-      const url = `${API_BASE_URL}/sellers/${selectedSeller}/optimized-route${params.toString() ? '?' + params : ''}`;
+      if (forceRecalculate) {
+        params.append('force_recalculate', 'true');
+      }
+      
+      const url = `${API_BASE_URL}/routes/optimize?seller_id=${selectedSeller}${params.toString() ? '&' + params : ''}`;
       const response = await fetch(url, { headers: { Authorization: `Bearer ${token()}` }});
       
       if (!response.ok) throw new Error('Error al generar ruta');
       
-      setRoute(await response.json());
+      const data = await response.json();
+      setRoute(data);
+      
+      // Log de información
+      if (data.from_cache && !forceRecalculate) {
+        console.log(`✅ Ruta desde caché (${data.cache_age_minutes || 0} min)`);
+      } else {
+        console.log(`🔄 Ruta calculada con ${data.algorithm_used}`);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -130,61 +157,118 @@ const RouteOptimizerPage = () => {
     <div style={{ padding: '20px', maxWidth: '1600px', margin: '0 auto' }}>
       {/* Header */}
       <h2>🗺️ Optimizador de Rutas</h2>
-      <p style={{ color: '#666' }}>Genera rutas optimizadas para reducir tiempo de desplazamiento</p>
+      <p style={{ color: '#666' }}>
+        {isTendero 
+          ? 'Visualiza la ruta de tu vendedor asignado'
+          : 'Genera rutas optimizadas para reducir tiempo de desplazamiento'
+        }
+      </p>
 
-      {/* Error */}
-      {error && (
-        <div style={{ padding: '15px', marginBottom: '20px', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '4px', display: 'flex', justifyContent: 'space-between' }}>
-          <span>{error}</span>
-          <button onClick={() => setError('')} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer' }}>×</button>
+      {/* Badges de información */}
+      {route && (
+        <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Badge de algoritmo */}
+          <span style={{
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '14px',
+            backgroundColor: route.algorithm_used === 'openrouteservice' ? '#10b981' : '#f59e0b',
+            color: 'white',
+            fontWeight: 'bold',
+            display: 'inline-block'
+          }}>
+            {route.algorithm_used === 'openrouteservice' ? '🌐 Ruta Real (OpenRouteService)' : '📏 Ruta Estimada (Haversine)'}
+          </span>
+
+          {/* Badge de caché */}
+          {route.from_cache && (
+            <span style={{
+              padding: '8px 16px',
+              borderRadius: '20px',
+              fontSize: '14px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              fontWeight: 'bold',
+              display: 'inline-block'
+            }}>
+              ⚡ Desde caché ({route.cache_age_minutes || 0} min)
+            </span>
+          )}
+
+          {/* Badge de precisión */}
+          <span style={{
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '14px',
+            backgroundColor: '#6b7280',
+            color: 'white',
+            fontWeight: 'bold',
+            display: 'inline-block'
+          }}>
+            🎯 Precisión: {route.algorithm_used === 'openrouteservice' ? '~95%' : '~70%'}
+          </span>
         </div>
       )}
 
-      {/* Configuración */}
-      <div style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', marginBottom: '20px' }}>
-        <h5>⚙️ Configuración</h5>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '15px' }}>
+      {/* Error */}
+      {error && (
+        <div style={{ padding: '15px', marginBottom: '20px', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '4px' }}>
+          {error}
+        </div>
+      )}
+
+      {/* Controles (solo para vendedores/admin) */}
+      {!isTendero && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Vendedor *</label>
-            <select value={selectedSeller} onChange={(e) => setSelectedSeller(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Vendedor</label>
+            <select value={selectedSeller} onChange={e => setSelectedSeller(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}>
               <option value="">Seleccionar...</option>
-              {sellers.map(s => (
-                <option key={s.id} value={s.id}>
-                  {s.name} - {getZoneName(s.zone_id)}
-                </option>
-              ))}
+              {sellers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
           </div>
+
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Latitud (Opcional)</label>
-            <input type="number" step="0.0000001" placeholder="4.6097100" value={startLocation.latitude} onChange={(e) => setStartLocation({...startLocation, latitude: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }} />
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Inicio (Lat)</label>
+            <input type="number" step="any" placeholder="Opcional" value={startLocation.latitude} onChange={e => setStartLocation({...startLocation, latitude: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }} />
           </div>
+
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>Longitud (Opcional)</label>
-            <input type="number" step="0.0000001" placeholder="-74.0817500" value={startLocation.longitude} onChange={(e) => setStartLocation({...startLocation, longitude: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }} />
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Inicio (Lon)</label>
+            <input type="number" step="any" placeholder="Opcional" value={startLocation.longitude} onChange={e => setStartLocation({...startLocation, longitude: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <button onClick={getLocation} style={{ width: '100%', padding: '8px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>📍 Mi Ubicación</button>
+
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+            <button onClick={getLocation} style={{ padding: '8px 16px', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              📍 Mi Ubicación
+            </button>
+            <button onClick={() => generateRoute(false)} disabled={!selectedSeller || loading} style={{ padding: '8px 16px', backgroundColor: loading ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer' }}>
+              {loading ? '⏳ Generando...' : '🚀 Generar Ruta'}
+            </button>
+            {route && (
+              <button onClick={() => generateRoute(true)} disabled={loading} style={{ padding: '8px 16px', backgroundColor: '#6b7280', color: 'white', border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                🔄 Recalcular
+              </button>
+            )}
           </div>
         </div>
-        <button onClick={generateRoute} disabled={loading || !selectedSeller} style={{ width: '100%', padding: '15px', backgroundColor: loading || !selectedSeller ? '#ccc' : '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: loading || !selectedSeller ? 'not-allowed' : 'pointer', fontSize: '16px', fontWeight: 'bold' }}>
-          {loading ? '⏳ Generando...' : '🚀 Generar Ruta'}
-        </button>
-      </div>
+      )}
 
-      {route ? (
+      {/* Resultados */}
+      {route && (
         <>
           {/* Estadísticas */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', marginBottom: '20px' }}>
             {[
-              { label: 'Total Tenderos', value: route.statistics.total_shopkeepers },
-              { label: 'Distancia Total', value: `${route.statistics.total_distance_km} km` },
-              { label: 'Tiempo Viaje', value: formatTime(route.statistics.estimated_travel_time_hours) },
-              { label: 'Tiempo Total', value: formatTime(route.statistics.estimated_total_time_hours), highlight: true }
+              { label: 'Paradas', value: route.statistics.total_shopkeepers, icon: '📍' },
+              { label: 'Distancia', value: `${route.statistics.total_distance_km} km`, icon: '📏' },
+              { label: 'Tiempo', value: formatTime(route.statistics.estimated_total_time_hours), icon: '⏱️' },
+              { label: 'Vendedor', value: route.seller_name, icon: '👤' }
             ].map((stat, i) => (
-              <div key={i} style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '20px', textAlign: 'center' }}>
-                <div style={{ color: '#666', marginBottom: '10px' }}>{stat.label}</div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold', color: stat.highlight ? '#007bff' : 'inherit' }}>{stat.value}</div>
+              <div key={i} style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ fontSize: '24px' }}>{stat.icon}</div>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>{stat.label}</div>
+                <div style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '5px', color: '#007bff' }}>{stat.value}</div>
               </div>
             ))}
           </div>
@@ -208,7 +292,6 @@ const RouteOptimizerPage = () => {
                   </Marker>
                 ))}
                 {routeLines.map((line, i) => <Polyline key={i} positions={line} color="#007bff" weight={3} opacity={0.7} />)}
-                {route.route_points[0] && <Circle center={[route.route_points[0].latitude, route.route_points[0].longitude]} radius={100} pathOptions={{ color: 'green', fillColor: 'green', fillOpacity: 0.2 }} />}
               </MapContainer>
             </div>
 
@@ -219,11 +302,12 @@ const RouteOptimizerPage = () => {
                 {route.route_points.map((p, i) => (
                   <div key={p.shopkeeper_id} style={{ padding: '15px', borderBottom: '1px solid #eee', backgroundColor: i === 0 ? '#e7f5e7' : i === route.route_points.length - 1 ? '#ffe7e7' : 'white' }}>
                     <div style={{ display: 'flex', gap: '10px' }}>
-                      <span style={{ backgroundColor: i === 0 ? '#28a745' : i === route.route_points.length - 1 ? '#dc3545' : '#007bff', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', minWidth: '30px', textAlign: 'center' }}>{p.order}</span>
+                      <span style={{ backgroundColor: i === 0 ? '#28a745' : i === route.route_points.length - 1 ? '#dc3545' : '#007bff', color: 'white', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{p.order}</span>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 'bold' }}>{p.shopkeeper_name} {i === 0 && '🟢'} {i === route.route_points.length - 1 && '🔴'}</div>
-                        <div style={{ fontSize: '12px', color: '#666' }}>📍 {p.address}</div>
-                        {p.distance_from_previous_km > 0 && <div style={{ fontSize: '12px', color: '#007bff' }}>🚗 {p.distance_from_previous_km} km | Acum: {p.cumulative_distance_km} km</div>}
+                        <div style={{ fontWeight: 'bold' }}>{p.shopkeeper_name}</div>
+                        <div style={{ fontSize: '12px', color: '#666' }}>{p.business_name}</div>
+                        <div style={{ fontSize: '12px', color: '#666' }}>{p.address}</div>
+                        {p.distance_from_previous_km > 0 && <div style={{ fontSize: '12px', color: '#007bff', marginTop: '5px' }}>📍 {p.distance_from_previous_km} km desde anterior</div>}
                       </div>
                     </div>
                   </div>
@@ -232,11 +316,6 @@ const RouteOptimizerPage = () => {
             </div>
           </div>
         </>
-      ) : !loading && (
-        <div style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '60px 20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🗺️</div>
-          <h3 style={{ color: '#666' }}>Seleccione un vendedor y genere una ruta optimizada</h3>
-        </div>
       )}
     </div>
   );
