@@ -24,15 +24,44 @@ const Navbar = () => {
         <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BSNavbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
-            <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
-            <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
-            <Nav.Link as={Link} to="/shopkeepers">Tenderos</Nav.Link>
+            {/* Dashboard: ADMIN y TENDERO (según permisos), VENDEDOR puede ver */}
+            {hasPermission('dashboard.view') && (
+              <Nav.Link as={Link} to="/dashboard">Dashboard</Nav.Link>
+            )}
+            {/* Mapa: ADMIN, TENDERO, VENDEDOR */}
+            {hasPermission('map.view') && (
+              <Nav.Link as={Link} to="/map">Mapa</Nav.Link>
+            )}
+            {/* Vendedores: Solo ADMIN y TENDERO (no VENDEDOR) */}
+            {hasPermission('sellers.manage') && (
+              <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
+            )}
+            {/* Tenderos: ADMIN, TENDERO, VENDEDOR (todos pueden ver) */}
+            {hasPermission('shopkeepers.view') && (
+              <NavDropdown title="Tenderos" id="shopkeepers-dropdown">
+                <NavDropdown.Item as={Link} to="/shopkeepers">
+                  📋 Lista de Tenderos
+                </NavDropdown.Item>
+                {hasPermission('visits.view') && (
+                  <NavDropdown.Item as={Link} to="/visits">
+                    📅 Visitas
+                  </NavDropdown.Item>
+                )}
+              </NavDropdown>
+            )}
+            {/* Rutas: ADMIN, TENDERO, VENDEDOR */}
             {hasPermission('routes.view') && (
               <Nav.Link as={Link} to="/routes">Rutas</Nav.Link>
             )}
-            <Nav.Link as={Link} to="/inventory">Inventarios</Nav.Link>
-            <Nav.Link as={Link} to="/products">Catálogo</Nav.Link>
+            {/* Inventarios: ADMIN, TENDERO, VENDEDOR */}
+            {hasPermission('inventory.view') && (
+              <Nav.Link as={Link} to="/inventory">Inventarios</Nav.Link>
+            )}
+            {/* Catálogo: ADMIN, VENDEDOR */}
+            {hasPermission('products.view') && (
+              <Nav.Link as={Link} to="/products">Catálogo</Nav.Link>
+            )}
+            {/* Reportes: ADMIN, TENDERO, VENDEDOR */}
             {hasPermission('reports.view') && (
               <NavDropdown title="Reportes" id="reports-dropdown">
                 <NavDropdown.Item as={Link} to="/reports">
@@ -43,6 +72,7 @@ const Navbar = () => {
                 </NavDropdown.Item>
               </NavDropdown>
             )}
+            {/* Usuarios: Solo ADMIN */}
             {hasPermission('users.manage') && (
               <Nav.Link as={Link} to="/users">Usuarios</Nav.Link>
             )}

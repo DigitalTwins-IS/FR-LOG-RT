@@ -66,17 +66,21 @@ export const AuthProvider = ({ children }) => {
 
   const hasPermission = (permission) => {
     const permissions = {
-      'users.manage': ['ADMIN'],
-      'dashboard.view': ['ADMIN', 'TENDERO'],
-      'map.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
-      'sellers.manage': ['ADMIN', 'TENDERO'],
-      'shopkeepers.manage': ['ADMIN', 'TENDERO'],
-      'routes.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Permiso para optimizador de rutas
-      'reports.view': ['ADMIN', 'TENDERO', 'VENDEDOR'],
-      'products.manage': ['ADMIN'],
-      'products.view': ['ADMIN', 'VENDEDOR'],
-      'inventory.manage': ['ADMIN', 'VENDEDOR'],
-      'inventory.view': ['ADMIN', 'TENDERO', 'VENDEDOR']
+      'users.manage': ['ADMIN'], // Solo ADMIN
+      'dashboard.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Todos pueden ver dashboard
+      'map.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Todos pueden ver mapa
+      'sellers.manage': ['ADMIN', 'TENDERO'], // ADMIN y TENDERO gestionan vendedores
+      'sellers.view': ['ADMIN', 'TENDERO'], // ADMIN y TENDERO pueden ver vendedores
+      'shopkeepers.manage': ['ADMIN', 'TENDERO'], // ADMIN y TENDERO gestionan tenderos
+      'shopkeepers.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Todos pueden ver tenderos
+      'routes.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Todos pueden ver rutas
+      'reports.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Todos pueden ver reportes
+      'products.manage': ['ADMIN'], // Solo ADMIN gestiona productos
+      'products.view': ['ADMIN', 'VENDEDOR'], // ADMIN y VENDEDOR ven catálogo
+      'inventory.manage': ['ADMIN', 'VENDEDOR'], // ADMIN y VENDEDOR gestionan inventario
+      'inventory.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Todos pueden ver inventario
+      'visits.manage': ['VENDEDOR'], // HU21: Solo vendedores pueden agendar visitas
+      'visits.view': ['ADMIN', 'VENDEDOR'] // Solo ADMIN y VENDEDOR pueden ver visitas (TENDERO no)
     };
 
     const allowedRoles = permissions[permission] || [];

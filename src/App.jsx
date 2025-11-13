@@ -20,6 +20,7 @@ import SalesHistoryPage from './pages/SalesHistoryPage';
 import RouteOptimizerPage from './pages/RouteOptimizerPage';
 import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage';
+import VisitsPage from './pages/VisitsPage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
@@ -77,7 +78,7 @@ function App() {
                       <Route
                         path="/shopkeepers"
                         element={
-                          <ProtectedRoute requiredPermission="shopkeepers.manage">
+                          <ProtectedRoute requiredPermission="shopkeepers.view">
                             <ShopkeepersPage />
                           </ProtectedRoute>
                         }
@@ -85,7 +86,7 @@ function App() {
                       <Route
                         path="/shopkeepers/:id/sales"
                         element={
-                          <ProtectedRoute requiredPermission="shopkeepers.manage">
+                          <ProtectedRoute requiredPermission="shopkeepers.view">
                             <SalesHistoryPage />
                           </ProtectedRoute>
                         }
@@ -155,6 +156,15 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="products.manage">
                             <ProductsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      <Route
+                        path="/visits"
+                        element={
+                          <ProtectedRoute requiredPermission="visits.view">
+                            <VisitsPage />
                           </ProtectedRoute>
                         }
                       />

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const ShopkeepersPage = () => {
+  const navigate = useNavigate();
   const [shopkeepers, setShopkeepers] = useState([]);
   const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +44,7 @@ const ShopkeepersPage = () => {
       if (filterStatus === 'unassigned') {
         shopkeepersData = await userService.getUnassignedShopkeepers();
       } else {
-        const filters = filterStatus === 'assigned' ? { seller_id: 'not_null' } : {};
+        const filters = filterStatus === 'assigned' ? { assigned: true } : {};
         shopkeepersData = await userService.getShopkeepers(filters);
       }
       
@@ -58,6 +59,7 @@ const ShopkeepersPage = () => {
       setLoading(false);
     }
   };
+
 
   const handleOpenModal = (shopkeeper = null) => {
     if (shopkeeper) {
@@ -229,11 +231,10 @@ const ShopkeepersPage = () => {
     }
   };
 
-const navigate = useNavigate();
 const handleViewSales = (shopkeeper) => {
   navigate(`/shopkeepers/${shopkeeper.id}/sales`, {
     state: { shopkeeper },
-});
+  });
 };
 
   const getCurrentLocation = () => {
