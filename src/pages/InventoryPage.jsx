@@ -452,11 +452,7 @@ const InventoryPage = () => {
                               className="mt-3"
                               onClick={() => setShowAddModal(true)}
                             >
-<<<<<<< HEAD
-                             ➕ Agregar Primer Producto
-=======
                               ➕ Agregar Primer Producto
->>>>>>> origin/main
                             </Button>
                           </td>
                         </tr>
@@ -545,99 +541,10 @@ const InventoryPage = () => {
                               </div>
                             </td>
                           </tr>
-                      ) : (
-                        inventory.map(item => (
-                          <tr key={item.id} className="align-middle">
-                            <td>
-                              <div className="d-flex align-items-center">
-                                <div className="me-2" style={{ fontSize: '1.2rem' }}>📦</div>
-                                <div>
-                                  <div className="fw-bold">{item.product_name}</div>
-                                  {item.product_description && (
-                                    <small className="text-muted d-block">{item.product_description.substring(0, 50)}...</small>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td>
-                              <Badge bg="secondary" className="px-2 py-1">{item.category || 'Sin categoría'}</Badge>
-                            </td>
-                            <td className="text-end">
-                              <span className="fw-semibold">{formatCurrency(item.price)}</span>
-                            </td>
-                            <td className="text-center">
-                              <span className={`fw-bold fs-5 ${item.stock < item.min_stock ? 'text-danger' : item.stock > item.max_stock ? 'text-warning' : 'text-success'}`}>
-                                {Math.round(item.stock || 0)}
-                              </span>
-                            </td>
-                            <td className="text-center">
-                              <div className="d-flex flex-column align-items-center">
-                                <small className="text-muted mb-1">
-                                  <span className="badge bg-info">Min: {Math.round(item.min_stock || 0)}</span>
-                                </small>
-                                <small className="text-muted">
-                                  <span className="badge bg-secondary">Max: {Math.round(item.max_stock || 0)}</span>
-                                </small>
-                              </div>
-                            </td>
-                            <td className="text-center">
-                              <Badge bg={getStockBadgeClass(item.stock_status)} className="px-3 py-2">
-                                {getStockBadgeText(item.stock_status)}
-                              </Badge>
-                            </td>
-                            <td className="text-end">
-                              <span className="fw-bold text-success">{formatCurrency(Math.round(item.stock || 0) * item.price)}</span>
-                            </td>
-                            <td>
-                              <div className="d-flex justify-content-center gap-1">
-                                <Button
-                                  size="sm"
-                                  variant="info"
-                                  className="d-flex align-items-center justify-content-center"
-                                  style={{ width: '32px', height: '32px' }}
-                                  onClick={() => {
-                                    setCurrentItem(item);
-                                    setAdjustForm({ product_id: item.product_id, quantity: 0, notes: '' });
-                                    setShowAdjustModal(true);
-                                  }}
-                                  title="Ajustar Stock"
-                                >
-                                  📊
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="warning"
-                                  className="d-flex align-items-center justify-content-center"
-                                  style={{ width: '32px', height: '32px' }}
-                                  onClick={() => {
-                                    setCurrentItem(item);
-                                    setShowEditModal(true);
-                                  }}
-                                  title="Editar"
-                                >
-                                  ✏️
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="danger"
-                                  className="d-flex align-items-center justify-content-center"
-                                  style={{ width: '32px', height: '32px' }}
-                                  onClick={() => handleDeleteItem(item.id)}
-                                  title="Eliminar"
-                                >
-                                  🗑️
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
                         ))
                       )}
                     </tbody>
-<<<<<<< HEAD
-                </Table>
-=======
                   </Table>
->>>>>>> origin/main
                 </div>
               </Card>
             </>

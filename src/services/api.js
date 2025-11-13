@@ -217,11 +217,7 @@ export const userService = {
   unassignShopkeeper: async (assignmentId) => {
     const response = await api.delete(`${MS_USER_URL}/assignments/${assignmentId}`);
     return response.data;
-<<<<<<< HEAD
-    },
-=======
   },
->>>>>>> origin/main
 
   // Inventory
   getInventory: async (shopkeeperId, lowStockOnly = false) => {
@@ -465,4 +461,3 @@ export const inventoryService = {
 };
 
 export default api;
-
