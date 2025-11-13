@@ -379,6 +379,29 @@ export const reportService = {
       { params }
     );
     return response.data;
+  },
+
+  /**
+   * Obtiene el reporte agregado de ventas de un vendedor
+   * Agrega las ventas de todos los tenderos asignados al vendedor
+   */
+  getSellerAggregatedSales: async (
+    sellerId,
+    { startDate, endDate } = {}
+  ) => {
+    if (!sellerId) {
+      throw new Error('sellerId es requerido para consultar reporte agregado de ventas');
+    }
+
+    const params = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+
+    const response = await api.get(
+      `${MS_REPORT_URL}/sales-aggregated/sellers/${sellerId}`,
+      { params }
+    );
+    return response.data;
   }
 };
 

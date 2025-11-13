@@ -17,6 +17,7 @@ import UsersPage from './pages/UsersPage';
 import ReportsPage from './pages/ReportsPage';
 import SalesComparisonPage from './pages/SalesComparisonPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
+import SellerSalesReportPage from './pages/SellerSalesReportPage';
 import RouteOptimizerPage from './pages/RouteOptimizerPage';
 import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage';
@@ -88,6 +89,14 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="shopkeepers.view">
                             <SalesHistoryPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/sellers/:id/sales-report"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <SellerSalesReportPage />
                           </ProtectedRoute>
                         }
                       />
