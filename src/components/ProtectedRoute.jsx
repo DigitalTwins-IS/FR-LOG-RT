@@ -22,15 +22,9 @@ const ProtectedRoute = ({ children, requiredPermission, fallbackPath = '/login' 
   }
 
   if (requiredPermission && !hasPermission(requiredPermission)) {
-    return (
-      <Container className="mt-4">
-        <Alert variant="danger">
-          <Alert.Heading>Acceso Denegado</Alert.Heading>
-          <p>No tienes permisos para acceder a esta sección.</p>
-          <p>Contacta al administrador si crees que esto es un error.</p>
-        </Alert>
-      </Container>
-    );
+    // Si no tiene permisos, redirigir al dashboard en lugar de mostrar error
+    // La funcionalidad simplemente no aparece en el menú si no tiene permisos
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;

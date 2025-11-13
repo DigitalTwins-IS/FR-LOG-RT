@@ -4,11 +4,13 @@
  */
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Button, Modal, Form, Badge, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { userService, geoService } from '../services/api';
 import { toast } from 'react-toastify';
 import { APP_CONFIG } from '../config';
 
 const SellersPage = () => {
+  const navigate = useNavigate();
   const [sellers, setSellers] = useState([]);
   const [zones, setZones] = useState([]);
   const [cities, setCities] = useState([]);
@@ -227,6 +229,7 @@ const SellersPage = () => {
                 <th>Teléfono</th>
                 <th>Zona</th>
                 <th>Tenderos</th>
+                <th>Usuario</th>
                 <th>Estado</th>
                 <th>Acciones</th>
               </tr>
@@ -234,7 +237,7 @@ const SellersPage = () => {
             <tbody>
               {sellers.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center text-muted">
+                  <td colSpan="9" className="text-center text-muted">
                     No hay vendedores registrados
                   </td>
                 </tr>
@@ -259,11 +262,27 @@ const SellersPage = () => {
                       </Badge>
                     </td>
                     <td>
+                      {seller.user_id ? (
+                        <Badge bg="success">✅ Usuario activo</Badge>
+                      ) : (
+                        <Badge bg="warning" text="dark">⚠️ Sin usuario</Badge>
+                      )}
+                    </td>
+                    <td>
                       <Badge bg={seller.is_active ? 'success' : 'secondary'}>
                         {seller.is_active ? 'Activo' : 'Inactivo'}
                       </Badge>
                     </td>
                     <td>
+                      <Button 
+                        size="sm" 
+                        variant="success" 
+                        className="me-2"
+                        onClick={() => navigate(`/sellers/${seller.id}/sales-report`)}
+                        title="Ver reporte agregado de ventas"
+                      >
+                        📊 Ventas
+                      </Button>
                       <Button 
                         size="sm" 
                         variant="info" 
@@ -383,6 +402,15 @@ const SellersPage = () => {
                 onChange={(e) => setFormData({...formData, address: e.target.value})}
               />
             </Form.Group>
+
+            {/* Información sobre creación automática de usuario */}
+            {!currentSeller && (
+              <Alert variant="info" className="mb-3">
+                <strong>ℹ️ Nota:</strong> Al crear el vendedor, se creará automáticamente un usuario 
+                con rol VENDEDOR para que pueda acceder al sistema. 
+                Credenciales: Email del vendedor / Contraseña: <strong>Vendedor123!</strong>
+              </Alert>
+            )}
 
             <div className="d-flex justify-content-end gap-2">
               <Button variant="secondary" onClick={handleCloseModal}>

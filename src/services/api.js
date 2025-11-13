@@ -253,6 +253,70 @@ export const userService = {
 };
 
 // ============================================================================
+// VISITS SERVICE (HU21: Agendar visitas basadas en inventario)
+// ============================================================================
+
+export const visitsService = {
+  // Listar visitas del vendedor con filtros
+  getVisits: async (filters = {}) => {
+    const params = {};
+    if (filters.status) params.status_filter = filters.status;
+    if (filters.shopkeeper_id) params.shopkeeper_id = filters.shopkeeper_id;
+    if (filters.start_date) params.start_date = filters.start_date;
+    if (filters.end_date) params.end_date = filters.end_date;
+    if (filters.skip) params.skip = filters.skip;
+    if (filters.limit) params.limit = filters.limit;
+    
+    const response = await api.get(`${MS_USER_URL}/visits`, { params });
+    return response.data;
+  },
+
+  // Obtener detalle de una visita
+  getVisit: async (visitId) => {
+    const response = await api.get(`${MS_USER_URL}/visits/${visitId}`);
+    return response.data;
+  },
+
+  // Agendar nueva visita
+  createVisit: async (visitData) => {
+    const response = await api.post(`${MS_USER_URL}/visits`, visitData);
+    return response.data;
+  },
+
+  // Actualizar visita
+  updateVisit: async (visitId, visitData) => {
+    const response = await api.put(`${MS_USER_URL}/visits/${visitId}`, visitData);
+    return response.data;
+  },
+
+  // Cancelar visita
+  cancelVisit: async (visitId, cancelledReason = null) => {
+    const response = await api.patch(`${MS_USER_URL}/visits/${visitId}/cancel`, {
+      cancelled_reason: cancelledReason
+    });
+    return response.data;
+  },
+
+  // Marcar visita como completada
+  completeVisit: async (visitId) => {
+    const response = await api.patch(`${MS_USER_URL}/visits/${visitId}/complete`);
+    return response.data;
+  },
+
+  // Listar tenderos con bajo stock
+  getShopkeepersWithLowStock: async () => {
+    const response = await api.get(`${MS_USER_URL}/visits/shopkeepers/low-stock`);
+    return response.data;
+  },
+
+  // Obtener resumen de inventario del tendero
+  getShopkeeperInventorySummary: async (shopkeeperId) => {
+    const response = await api.get(`${MS_USER_URL}/visits/shopkeepers/${shopkeeperId}/inventory-summary`);
+    return response.data;
+  }
+};
+
+// ============================================================================
 // REPORT SERVICE
 // ============================================================================
 
@@ -289,6 +353,54 @@ export const reportService = {
   getSalesComparison: async (comparisonType = 'both') => {
     const params = { comparison_type: comparisonType };
     const response = await api.get(`${MS_REPORT_URL}/sales-comparison`, { params });
+    return response.data;
+  },
+
+  /**
+   * Obtiene el historial de ventas de un tendero específico
+   * permitiendo filtros por rango de fechas y opciones de paginación.
+   */
+  getShopkeeperSalesHistory: async (
+    shopkeeperId,
+    { startDate, endDate, page, pageSize } = {}
+  ) => {
+    if (!shopkeeperId) {
+      throw new Error('shopkeeperId es requerido para consultar ventas');
+    }
+
+    const params = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+    if (page) params.page = page;
+    if (pageSize) params.page_size = pageSize;
+
+    const response = await api.get(
+      `${MS_REPORT_URL}/sales-history/shopkeepers/${shopkeeperId}`,
+      { params }
+    );
+    return response.data;
+  },
+
+  /**
+   * Obtiene el reporte agregado de ventas de un vendedor
+   * Agrega las ventas de todos los tenderos asignados al vendedor
+   */
+  getSellerAggregatedSales: async (
+    sellerId,
+    { startDate, endDate } = {}
+  ) => {
+    if (!sellerId) {
+      throw new Error('sellerId es requerido para consultar reporte agregado de ventas');
+    }
+
+    const params = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+
+    const response = await api.get(
+      `${MS_REPORT_URL}/sales-aggregated/sellers/${sellerId}`,
+      { params }
+    );
     return response.data;
   }
 };
