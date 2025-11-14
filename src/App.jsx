@@ -21,6 +21,7 @@ import RouteOptimizerPage from './pages/RouteOptimizerPage';
 import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage';
 import VisitsPage from './pages/VisitsPage';
+import SellerIncidentsPage from './pages/SellerIncidentsPage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
@@ -72,6 +73,14 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="sellers.manage">
                             <SellersPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/seller-incidents"
+                        element={
+                          <ProtectedRoute requiredPermission="seller_incidents.view">
+                            <SellerIncidentsPage />
                           </ProtectedRoute>
                         }
                       />

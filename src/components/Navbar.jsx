@@ -34,7 +34,16 @@ const Navbar = () => {
             )}
             {/* Vendedores: Solo ADMIN y TENDERO (no VENDEDOR) */}
             {hasPermission('sellers.manage') && (
-              <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
+              <NavDropdown title="Vendedores" id="sellers-dropdown">
+                <NavDropdown.Item as={Link} to="/sellers">
+                  👥 Lista de Vendedores
+                </NavDropdown.Item>
+                {hasPermission('seller_incidents.view') && (
+                  <NavDropdown.Item as={Link} to="/seller-incidents">
+                    ⚠️ Incidencias de Visitas
+                  </NavDropdown.Item>
+                )}
+              </NavDropdown>
             )}
             {/* Tenderos: ADMIN, TENDERO, VENDEDOR (todos pueden ver) */}
             {hasPermission('shopkeepers.view') && (

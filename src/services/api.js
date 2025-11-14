@@ -461,3 +461,55 @@ export const inventoryService = {
 };
 
 export default api;
+
+// ============================================================================
+// SELLER INCIDENTS SERVICE (HU16 - Registrar incidencias de vendedores)
+// ============================================================================
+export const sellerIncidentsService = {
+  
+  /**
+   * Listar incidencias con filtros opcionales:
+   * seller_id, type, shopkeeper_id
+   */
+  getAll: async (sellerId = null, type = null, shopkeeperId = null) => {
+    const params = {};
+    if (sellerId) params.seller_id = sellerId;
+    if (type) params.type = type;
+    if (shopkeeperId) params.shopkeeper_id = shopkeeperId;
+
+    const response = await api.get(`${MS_USER_URL}/seller-incidents/`, { params });
+    return response.data;
+  },
+
+  /**
+   * Obtener incidencia por ID
+   */
+  getById: async (id) => {
+    const response = await api.get(`${MS_USER_URL}/seller-incidents/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Crear nueva incidencia
+   */
+  createIncident: async (incidentData) => {
+    const response = await api.post(`${MS_USER_URL}/seller-incidents/`, incidentData);
+    return response.data;
+  },
+
+  /**
+   * Actualizar una incidencia existente
+   */
+  updateIncident: async (id, incidentData) => {
+    const response = await api.put(`${MS_USER_URL}/seller-incidents/${id}`, incidentData);
+    return response.data;
+  },
+
+  /**
+   * (Opcional) Eliminar o desactivar una incidencia (si lo implementas)
+   */
+  deleteIncident: async (id) => {
+    const response = await api.delete(`${MS_USER_URL}/seller-incidents/${id}`);
+    return response.data;
+  }
+};
