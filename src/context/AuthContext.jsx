@@ -80,7 +80,9 @@ export const AuthProvider = ({ children }) => {
       'inventory.manage': ['ADMIN', 'VENDEDOR'], // ADMIN y VENDEDOR gestionan inventario
       'inventory.view': ['ADMIN', 'TENDERO', 'VENDEDOR'], // Todos pueden ver inventario
       'visits.manage': ['VENDEDOR'], // HU21: Solo vendedores pueden agendar visitas
-      'visits.view': ['ADMIN', 'VENDEDOR'] // Solo ADMIN y VENDEDOR pueden ver visitas (TENDERO no)
+      'visits.view': ['ADMIN', 'VENDEDOR'], // Solo ADMIN y VENDEDOR pueden ver visitas (TENDERO no)
+      'seller_incidents.manage': ['ADMIN', 'TENDERO'], // ADMIN y TENDERO gestionan incidencias
+      'seller_incidents.view': ['ADMIN', 'TENDERO'] // ADMIN y TENDERO ven incidencias
     };
 
     const allowedRoles = permissions[permission] || [];
