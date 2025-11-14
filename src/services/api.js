@@ -97,6 +97,39 @@ export const authService = {
   getRoles: async () => {
     const response = await api.get(`${MS_AUTH_URL}/users/roles`);
     return response.data;
+  },
+
+  // Restablecimiento de contraseña con verificación adicional
+  forgotPassword: async (email, verificationMethod, phoneNumber = null, securityAnswer = null) => {
+    const payload = {
+      email,
+      verification_method: verificationMethod
+    };
+    
+    if (verificationMethod === 'phone' && phoneNumber) {
+      payload.phone_number = phoneNumber;
+    } else if (verificationMethod === 'security_question' && securityAnswer) {
+      payload.security_answer = securityAnswer;
+    }
+    
+    const response = await api.post(`${MS_AUTH_URL}/forgot-password`, payload);
+    return response.data;
+  },
+
+  resetPassword: async (email, resetCode = null, token = null, newPassword) => {
+    const payload = {
+      email,
+      new_password: newPassword
+    };
+    
+    if (resetCode) {
+      payload.reset_code = resetCode;
+    } else if (token) {
+      payload.token = token;
+    }
+    
+    const response = await api.post(`${MS_AUTH_URL}/reset-password`, payload);
+    return response.data;
   }
 };
 

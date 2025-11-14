@@ -78,6 +78,17 @@ const LoginPage = () => {
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </Button>
             </Form>
+
+            <div className="mt-3 text-center">
+              <Button 
+                variant="link" 
+                onClick={() => navigate('/forgot-password')}
+                className="p-0"
+                style={{ fontSize: '0.875rem' }}
+              >
+                ¿Olvidaste tu contraseña?
+              </Button>
+            </div>
           </Card.Body>
         </Card>
 
