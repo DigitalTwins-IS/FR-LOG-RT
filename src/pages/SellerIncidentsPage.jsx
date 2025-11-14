@@ -153,6 +153,7 @@ const SellerIncidentsPage = () => {
         if (!formData.type) errors.type = "Debe seleccionar un tipo de incidencia";
         if (!formData.incident_date) errors.incident_date = "Debe seleccionar la fecha";
         if (!formData.description || !formData.description.trim()) errors.description = "La descripción es obligatoria";
+        if (!formData.shopkeeper_id) errors.shopkeeper_id = "Debe seleccionar una tienda";
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
