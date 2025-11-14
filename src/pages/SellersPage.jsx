@@ -4,11 +4,13 @@
  */
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Table, Button, Modal, Form, Badge, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { userService, geoService } from '../services/api';
 import { toast } from 'react-toastify';
 import { APP_CONFIG } from '../config';
 
 const SellersPage = () => {
+  const navigate = useNavigate();
   const [sellers, setSellers] = useState([]);
   const [zones, setZones] = useState([]);
   const [cities, setCities] = useState([]);
@@ -272,6 +274,15 @@ const SellersPage = () => {
                       </Badge>
                     </td>
                     <td>
+                      <Button 
+                        size="sm" 
+                        variant="success" 
+                        className="me-2"
+                        onClick={() => navigate(`/sellers/${seller.id}/sales-report`)}
+                        title="Ver reporte agregado de ventas"
+                      >
+                        📊 Ventas
+                      </Button>
                       <Button 
                         size="sm" 
                         variant="info" 

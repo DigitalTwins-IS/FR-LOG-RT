@@ -18,10 +18,12 @@ import UsersPage from './pages/UsersPage';
 import ReportsPage from './pages/ReportsPage';
 import SalesComparisonPage from './pages/SalesComparisonPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
+import SellerSalesReportPage from './pages/SellerSalesReportPage';
 import RouteOptimizerPage from './pages/RouteOptimizerPage';
 import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage';
 import VisitsPage from './pages/VisitsPage';
+import SellerIncidentsPage from './pages/SellerIncidentsPage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
@@ -78,6 +80,14 @@ function App() {
                         }
                       />
                       <Route
+                        path="/seller-incidents"
+                        element={
+                          <ProtectedRoute requiredPermission="seller_incidents.view">
+                            <SellerIncidentsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
                         path="/shopkeepers"
                         element={
                           <ProtectedRoute requiredPermission="shopkeepers.view">
@@ -90,6 +100,14 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="shopkeepers.view">
                             <SalesHistoryPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/sellers/:id/sales-report"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <SellerSalesReportPage />
                           </ProtectedRoute>
                         }
                       />
