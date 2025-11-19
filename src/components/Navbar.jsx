@@ -79,6 +79,9 @@ const Navbar = () => {
                 <NavDropdown.Item as={Link} to="/sales-comparison">
                   📈 Comparación de Ventas
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/top-products">
+                  🛒 Top Productos por Zona
+                </NavDropdown.Item>
               </NavDropdown>
             )}
             {/* Usuarios: Solo ADMIN */}
