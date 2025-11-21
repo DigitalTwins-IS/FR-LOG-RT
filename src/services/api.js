@@ -444,6 +444,23 @@ export const reportService = {
       { params }
     );
     return response.data;
+  },
+
+  /**
+   * Obtiene el reporte de cumplimiento de visitas por vendedor
+   * HU15: Como administrador, quiero ver % de cumplimiento de visitas
+   */
+  getVisitsCompliance: async (filters = {}) => {
+    const params = {};
+    if (filters.sellerId) params.seller_id = filters.sellerId;
+    if (filters.zoneId) params.zone_id = filters.zoneId;
+    if (filters.startDate) params.start_date = filters.startDate;
+    if (filters.endDate) params.end_date = filters.endDate;
+    if (filters.sortBy) params.sort_by = filters.sortBy;
+    if (filters.sortOrder) params.sort_order = filters.sortOrder;
+
+    const response = await api.get(`${MS_REPORT_URL}/visits-compliance`, { params });
+    return response.data;
   }
 };
 

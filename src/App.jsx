@@ -25,6 +25,7 @@ import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage';
 import VisitsPage from './pages/VisitsPage';
 import SellerIncidentsPage from './pages/SellerIncidentsPage';
+import VisitsCompliancePage from './pages/VisitsCompliancePage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
@@ -194,6 +195,14 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="visits.view">
                             <VisitsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/visits-compliance"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <VisitsCompliancePage />
                           </ProtectedRoute>
                         }
                       />
