@@ -389,6 +389,15 @@ export const reportService = {
     return response.data;
   },
 
+  getTopProducts: async ({ sellerId = null, zoneId = null, limit = 3 } = {}) => {
+    const params = {};
+    if (sellerId) params.seller_id = sellerId;
+    if (zoneId) params.zone_id = zoneId;
+    if (limit) params.limit = limit;
+    const response = await api.get(`${MS_REPORT_URL}/sales/top-products`, { params });
+    return response.data;
+  },
+
   /**
    * Obtiene el historial de ventas de un tendero específico
    * permitiendo filtros por rango de fechas y opciones de paginación.

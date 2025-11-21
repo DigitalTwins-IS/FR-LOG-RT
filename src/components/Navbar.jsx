@@ -82,6 +82,9 @@ const Navbar = () => {
                 <NavDropdown.Item as={Link} to="/visits-compliance">
                   ✅ Cumplimiento de Visitas
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/top-products">
+                  🛒 Top Productos por Zona
+                </NavDropdown.Item>
               </NavDropdown>
             )}
             {/* Usuarios: Solo ADMIN */}
