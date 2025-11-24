@@ -12,6 +12,7 @@ export const MS_USER_URL = import.meta.env.VITE_MS_USER_URL || 'http://localhost
 export const MS_REPORT_URL = import.meta.env.VITE_MS_REPORT_URL || 'http://localhost:8004/api/v1/reports';
 export const MS_PRODUCT_URL = import.meta.env.VITE_MS_PRODUCT_URL || 'http://localhost:8005/api/v1/products';
 
+export const WS_USER_URL = import.meta.env.VITE_WS_USER_URL || 'ws://localhost:8002/api/v1/users';
 
 // Map Configuration
 export const MAP_CONFIG = {
@@ -49,3 +50,16 @@ export const ZONE_COLORS = {
   'default': '#95A5A6'
 };
 
+const config = {
+  API_BASE_URL,
+  MS_AUTH_URL,
+  MS_GEO_URL,
+  MS_USER_URL,
+  MS_REPORT_URL,
+  MS_PRODUCT_URL,
+  WS_USER_URL,
+  MAP_CONFIG,
+  ZONE_COLORS
+};
+
+export default config;

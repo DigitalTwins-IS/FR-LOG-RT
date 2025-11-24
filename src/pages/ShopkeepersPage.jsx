@@ -7,6 +7,8 @@ import { Container, Row, Col, Table, Button, Modal, Form, Badge, Alert, Tabs, Ta
 import { userService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import AddressAutocomplete from '../components/AddressAutocomplete';
+import MapClickHandler from '../components/MapClickHandler';
 
 const ShopkeepersPage = () => {
   const navigate = useNavigate();

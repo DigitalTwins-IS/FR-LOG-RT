@@ -23,6 +23,8 @@ Frontend moderno para el Sistema Digital Twins que implementa todas las Historia
 - **HU3**: Registro de tenderos con geolocalización
 - **HU4**: Actualización de datos en tiempo real
 - **HU5**: Reportes y análisis con exportación
+- **HU13**: Optimización de rutas para vendedores
+- **HU18**: Tracking en tiempo real de vendedores con WebSockets
 
 ---
 
@@ -58,7 +60,11 @@ FR-LOG-RT/
 │   │   ├── MapPage.jsx    # HU1
 │   │   ├── SellersPage.jsx  # HU2
 │   │   ├── ShopkeepersPage.jsx  # HU3
+│   │   ├── WorkspacePage.jsx  # HU13
 │   │   └── ReportsPage.jsx  # HU5
+│   ├── hooks/            # Custom hooks
+│   │   ├── useWebSocketTracking.js  # HU18
+│   │   └── useGeocoding.js  # HU18
 │   ├── services/          # API clients
 │   │   └── api.js
 │   ├── config.js          # Configuración
@@ -105,6 +111,7 @@ VITE_MS_AUTH_URL=http://localhost:8001/api/v1/auth
 VITE_MS_GEO_URL=http://localhost:8003/api/v1/geo
 VITE_MS_USER_URL=http://localhost:8002/api/v1/users
 VITE_MS_REPORT_URL=http://localhost:8004/api/v1/reports
+VITE_WS_USER_URL=ws://localhost:8080
 ```
 
 ### **Iniciar Desarrollo**
@@ -149,7 +156,24 @@ La aplicación estará disponible en: **http://localhost:3000**
 - Asignar a vendedor
 - Ver sin asignar
 
-### **6. Reportes (HU5)**
+### **6. Optimizador de Rutas (HU13)**
+- Generación de rutas optimizadas para vendedores
+- Visualización en mapa interactivo
+- Soporte para OpenRouteService API (distancias reales)
+- Fallback a algoritmo Haversine
+- Punto de inicio personalizable
+- Estadísticas de ruta (distancia, tiempo estimado)
+- Lista ordenada de paradas
+
+### **7. Tracking en Tiempo Real (HU18)**
+- WebSocket para actualizaciones en tiempo real
+- Visualización de ubicación del vendedor en mapa
+- Cálculo de distancia y ETA al tendero
+- Marcadores animados
+- Reconexión automática
+- Indicadores de estado (activo, inactivo, offline)
+
+### **8. Reportes (HU5)**
 - Reporte de cobertura
 - Rendimiento de vendedores
 - Estadísticas por zona
@@ -263,6 +287,10 @@ El build se genera en la carpeta `dist/`
 - `GET /api/v1/users/shopkeepers` - Listar tenderos
 - `POST /api/v1/users/shopkeepers` - Crear tendero
 - `POST /api/v1/users/assign` - Asignar tendero
+- `GET /api/v1/users/routes/optimize` - Generar ruta optimizada (HU13)
+- `POST /api/v1/users/tracking/locations` - Registrar ubicación vendedor (HU18)
+- `GET /api/v1/users/tracking/locations/seller/{id}/latest` - Última ubicación (HU18)
+- `WebSocket /api/v1/users/tracking/ws/track/{seller_id}/{shopkeeper_id}` - Tracking en tiempo real (HU18)
 
 ### **MS-REPORT-PY (8004)**
 - `GET /api/v1/reports/metrics` - Métricas
@@ -289,12 +317,13 @@ Este proyecto es parte del Sistema Digital Twins para Ingeniería de Software.
 
 ## 🎯 **Roadmap**
 
-- [ ] Completar páginas de Vendedores y Tenderos
+- [x] Completar páginas de Vendedores y Tenderos
+- [x] Implementar optimización de rutas (HU13)
+- [x] Implementar WebSockets para tracking en tiempo real (HU14)
 - [ ] Implementar reportes con gráficos
 - [ ] Agregar tests unitarios
 - [ ] Mejorar UX del mapa
 - [ ] Agregar modo oscuro
-- [ ] Implementar WebSockets para updates en tiempo real
 
 ---
 

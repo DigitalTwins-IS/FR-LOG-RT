@@ -4,6 +4,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar';
 import PrivateRoute from './components/PrivateRoute';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -19,8 +20,7 @@ import ReportsPage from './pages/ReportsPage';
 import SalesComparisonPage from './pages/SalesComparisonPage';
 import TopProductsPage from './pages/TopProductsPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
-import SellerSalesReportPage from './pages/SellerSalesReportPage';
-import RouteOptimizerPage from './pages/RouteOptimizerPage';
+import WorkspacePage from './pages/WorkspacePage';
 import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage';
 import VisitsPage from './pages/VisitsPage';
@@ -118,9 +118,9 @@ function App() {
                         path="/routes"
                         element={
                           <ProtectedRoute requiredPermission="routes.view">
-                            <RouteOptimizerPage />
+                            <WorkspacePage />
                           </ProtectedRoute>
-                        }
+                        } 
                       />
                       <Route
                         path="/users"
@@ -217,7 +217,7 @@ function App() {
                       />
 
                       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                      <Route path="/route-optimizer" element={<RouteOptimizerPage />} />
+                      
                     </Routes>
                   </>
                 </PrivateRoute>
