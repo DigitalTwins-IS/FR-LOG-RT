@@ -27,6 +27,7 @@ import VisitsPage from './pages/VisitsPage';
 import SellerIncidentsPage from './pages/SellerIncidentsPage';
 import VisitsCompliancePage from './pages/VisitsCompliancePage';
 import MarketOpportunitiesPage from './pages/MarketOpportunitiesPage';
+import SellerSalesReportPage from './pages/SellerSalesReportPage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
