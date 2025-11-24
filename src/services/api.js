@@ -121,6 +121,39 @@ export const authService = {
   getRoles: async () => {
     const response = await api.get(`${MS_AUTH_URL}/users/roles`);
     return response.data;
+  },
+
+  // Restablecimiento de contraseña con verificación adicional
+  forgotPassword: async (email, verificationMethod, phoneNumber = null, securityAnswer = null) => {
+    const payload = {
+      email,
+      verification_method: verificationMethod
+    };
+    
+    if (verificationMethod === 'phone' && phoneNumber) {
+      payload.phone_number = phoneNumber;
+    } else if (verificationMethod === 'security_question' && securityAnswer) {
+      payload.security_answer = securityAnswer;
+    }
+    
+    const response = await api.post(`${MS_AUTH_URL}/forgot-password`, payload);
+    return response.data;
+  },
+
+  resetPassword: async (email, resetCode = null, token = null, newPassword) => {
+    const payload = {
+      email,
+      new_password: newPassword
+    };
+    
+    if (resetCode) {
+      payload.reset_code = resetCode;
+    } else if (token) {
+      payload.token = token;
+    }
+    
+    const response = await api.post(`${MS_AUTH_URL}/reset-password`, payload);
+    return response.data;
   }
 };
 
@@ -380,6 +413,15 @@ export const reportService = {
     return response.data;
   },
 
+  getTopProducts: async ({ sellerId = null, zoneId = null, limit = 3 } = {}) => {
+    const params = {};
+    if (sellerId) params.seller_id = sellerId;
+    if (zoneId) params.zone_id = zoneId;
+    if (limit) params.limit = limit;
+    const response = await api.get(`${MS_REPORT_URL}/sales/top-products`, { params });
+    return response.data;
+  },
+
   /**
    * Obtiene el historial de ventas de un tendero específico
    * permitiendo filtros por rango de fechas y opciones de paginación.
@@ -402,6 +444,60 @@ export const reportService = {
       `${MS_REPORT_URL}/sales-history/shopkeepers/${shopkeeperId}`,
       { params }
     );
+    return response.data;
+  },
+
+  /**
+   * Obtiene el reporte agregado de ventas de un vendedor
+   * Agrega las ventas de todos los tenderos asignados al vendedor
+   */
+  getSellerAggregatedSales: async (
+    sellerId,
+    { startDate, endDate } = {}
+  ) => {
+    if (!sellerId) {
+      throw new Error('sellerId es requerido para consultar reporte agregado de ventas');
+    }
+
+    const params = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+
+    const response = await api.get(
+      `${MS_REPORT_URL}/sales-aggregated/sellers/${sellerId}`,
+      { params }
+    );
+    return response.data;
+  },
+
+  /**
+   * Obtiene el reporte de cumplimiento de visitas por vendedor
+   * HU15: Como administrador, quiero ver % de cumplimiento de visitas
+   */
+  getVisitsCompliance: async (filters = {}) => {
+    const params = {};
+    if (filters.sellerId) params.seller_id = filters.sellerId;
+    if (filters.zoneId) params.zone_id = filters.zoneId;
+    if (filters.startDate) params.start_date = filters.startDate;
+    if (filters.endDate) params.end_date = filters.endDate;
+    if (filters.sortBy) params.sort_by = filters.sortBy;
+    if (filters.sortOrder) params.sort_order = filters.sortOrder;
+
+    const response = await api.get(`${MS_REPORT_URL}/visits-compliance`, { params });
+    return response.data;
+  },
+
+  getMarketOpportunities: async (filters = {}) => {
+    const params = {};
+    if (filters.cityId) params.city_id = filters.cityId;
+    if (filters.zoneId) params.zone_id = filters.zoneId;
+    if (filters.category) params.category = filters.category;
+    if (filters.startDate) params.start_date = filters.startDate;
+    if (filters.endDate) params.end_date = filters.endDate;
+    if (filters.popularityThreshold !== undefined) params.popularity_threshold = filters.popularityThreshold;
+    if (filters.minMissing) params.min_missing_shopkeepers = filters.minMissing;
+
+    const response = await api.get(`${MS_REPORT_URL}/market-opportunities`, { params });
     return response.data;
   }
 };
@@ -486,3 +582,54 @@ export const inventoryService = {
 
 export default api;
 
+// ============================================================================
+// SELLER INCIDENTS SERVICE (HU16 - Registrar incidencias de vendedores)
+// ============================================================================
+export const sellerIncidentsService = {
+  
+  /**
+   * Listar incidencias con filtros opcionales:
+   * seller_id, type, shopkeeper_id
+   */
+  getAll: async (sellerId = null, type = null, shopkeeperId = null) => {
+    const params = {};
+    if (sellerId) params.seller_id = sellerId;
+    if (type) params.type = type;
+    if (shopkeeperId) params.shopkeeper_id = shopkeeperId;
+
+    const response = await api.get(`${MS_USER_URL}/seller-incidents/`, { params });
+    return response.data;
+  },
+
+  /**
+   * Obtener incidencia por ID
+   */
+  getById: async (id) => {
+    const response = await api.get(`${MS_USER_URL}/seller-incidents/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Crear nueva incidencia
+   */
+  createIncident: async (incidentData) => {
+    const response = await api.post(`${MS_USER_URL}/seller-incidents/`, incidentData);
+    return response.data;
+  },
+
+  /**
+   * Actualizar una incidencia existente
+   */
+  updateIncident: async (id, incidentData) => {
+    const response = await api.put(`${MS_USER_URL}/seller-incidents/${id}`, incidentData);
+    return response.data;
+  },
+
+  /**
+   * (Opcional) Eliminar o desactivar una incidencia (si lo implementas)
+   */
+  deleteIncident: async (id) => {
+    const response = await api.delete(`${MS_USER_URL}/seller-incidents/${id}`);
+    return response.data;
+  }
+};

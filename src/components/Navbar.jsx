@@ -18,7 +18,7 @@ const Navbar = () => {
   return (
     <BSNavbar bg="dark" variant="dark" expand="lg">
       <Container>
-      <BSNavbar.Brand as={Link} to="/dashboard">
+        <BSNavbar.Brand as={Link} to="/dashboard">
           {APP_CONFIG.name}
         </BSNavbar.Brand>
         <BSNavbar.Toggle aria-controls="basic-navbar-nav" />
@@ -34,7 +34,16 @@ const Navbar = () => {
             )}
             {/* Vendedores: Solo ADMIN y TENDERO (no VENDEDOR) */}
             {hasPermission('sellers.manage') && (
-              <Nav.Link as={Link} to="/sellers">Vendedores</Nav.Link>
+              <NavDropdown title="Vendedores" id="sellers-dropdown">
+                <NavDropdown.Item as={Link} to="/sellers">
+                  👥 Lista de Vendedores
+                </NavDropdown.Item>
+                {hasPermission('seller_incidents.view') && (
+                  <NavDropdown.Item as={Link} to="/seller-incidents">
+                    ⚠️ Incidencias de Visitas
+                  </NavDropdown.Item>
+                )}
+              </NavDropdown>
             )}
             {/* Tenderos: ADMIN, TENDERO, VENDEDOR (todos pueden ver) */}
             {hasPermission('shopkeepers.view') && (
@@ -68,6 +77,15 @@ const Navbar = () => {
                 </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/sales-comparison">
                   📈 Comparación de Ventas
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/visits-compliance">
+                  ✅ Cumplimiento de Visitas
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/top-products">
+                  🛒 Top Productos por Zona
+                </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/market-opportunities">
+                  🎯 Oportunidades de Mercado
                 </NavDropdown.Item>
               </NavDropdown>
             )}

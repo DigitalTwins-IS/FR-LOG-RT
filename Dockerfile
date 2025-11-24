@@ -6,7 +6,7 @@ LABEL description="FR-LOG-RT - Frontend React"
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 COPY . .
 RUN npm run build

@@ -10,6 +10,7 @@ import PrivateRoute from './components/PrivateRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import MapPage from './pages/MapPage';
 import SellersPage from './pages/SellersPage';
@@ -17,11 +18,15 @@ import ShopkeepersPage from './pages/ShopkeepersPage';
 import UsersPage from './pages/UsersPage';
 import ReportsPage from './pages/ReportsPage';
 import SalesComparisonPage from './pages/SalesComparisonPage';
+import TopProductsPage from './pages/TopProductsPage';
 import SalesHistoryPage from './pages/SalesHistoryPage';
 import WorkspacePage from './pages/WorkspacePage';
 import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage';
 import VisitsPage from './pages/VisitsPage';
+import SellerIncidentsPage from './pages/SellerIncidentsPage';
+import VisitsCompliancePage from './pages/VisitsCompliancePage';
+import MarketOpportunitiesPage from './pages/MarketOpportunitiesPage';
 
 // Componente para redirección por defecto basada en rol
 const NavigateToDefault = () => {
@@ -40,8 +45,9 @@ function App() {
       <AuthProvider>
         <div className="App">
           <Routes>
-            {/* Ruta pública */}
+            {/* Rutas públicas */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
             {/* Rutas protegidas */}
             <Route
@@ -77,6 +83,14 @@ function App() {
                         }
                       />
                       <Route
+                        path="/seller-incidents"
+                        element={
+                          <ProtectedRoute requiredPermission="seller_incidents.view">
+                            <SellerIncidentsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
                         path="/shopkeepers"
                         element={
                           <ProtectedRoute requiredPermission="shopkeepers.view">
@@ -89,6 +103,14 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="shopkeepers.view">
                             <SalesHistoryPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/sellers/:id/sales-report"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <SellerSalesReportPage />
                           </ProtectedRoute>
                         }
                       />
@@ -121,6 +143,14 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="reports.view">
                             <SalesComparisonPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/top-products"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <TopProductsPage />
                           </ProtectedRoute>
                         }
                       />
@@ -166,6 +196,22 @@ function App() {
                         element={
                           <ProtectedRoute requiredPermission="visits.view">
                             <VisitsPage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/visits-compliance"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <VisitsCompliancePage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/market-opportunities"
+                        element={
+                          <ProtectedRoute requiredPermission="reports.view">
+                            <MarketOpportunitiesPage />
                           </ProtectedRoute>
                         }
                       />
