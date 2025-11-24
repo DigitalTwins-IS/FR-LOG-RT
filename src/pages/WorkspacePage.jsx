@@ -988,7 +988,6 @@ const WorkspacePage = () => {
     finalTrackingSellerId: trackingSellerId,
     userRole: userRole,
     willShowTracking: showTracking && trackingSellerId
-    willShowTracking: showTracking && trackingSellerId
   });
 
   const handleSellerChange = useCallback((sellerId) => {
