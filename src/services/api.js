@@ -462,6 +462,20 @@ export const reportService = {
 
     const response = await api.get(`${MS_REPORT_URL}/visits-compliance`, { params });
     return response.data;
+  },
+
+  getMarketOpportunities: async (filters = {}) => {
+    const params = {};
+    if (filters.cityId) params.city_id = filters.cityId;
+    if (filters.zoneId) params.zone_id = filters.zoneId;
+    if (filters.category) params.category = filters.category;
+    if (filters.startDate) params.start_date = filters.startDate;
+    if (filters.endDate) params.end_date = filters.endDate;
+    if (filters.popularityThreshold !== undefined) params.popularity_threshold = filters.popularityThreshold;
+    if (filters.minMissing) params.min_missing_shopkeepers = filters.minMissing;
+
+    const response = await api.get(`${MS_REPORT_URL}/market-opportunities`, { params });
+    return response.data;
   }
 };
 

@@ -85,6 +85,9 @@ const Navbar = () => {
                 <NavDropdown.Item as={Link} to="/top-products">
                   🛒 Top Productos por Zona
                 </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/market-opportunities">
+                  🎯 Oportunidades de Mercado
+                </NavDropdown.Item>
               </NavDropdown>
             )}
             {/* Usuarios: Solo ADMIN */}
