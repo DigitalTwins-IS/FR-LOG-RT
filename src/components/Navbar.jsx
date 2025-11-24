@@ -49,10 +49,9 @@ const Navbar = () => {
                 )}
               </NavDropdown>
             )}
-            {/* Rutas: ADMIN, TENDERO, VENDEDOR */}
-            {hasPermission('routes.view') && (
-              <Nav.Link as={Link} to="/routes">Rutas</Nav.Link>
-            )}
+            {/* Workspace - Visible para todos los roles */}
+            <Nav.Link as={Link} to="/routes">Rutas</Nav.Link>
+
             {/* Inventarios: ADMIN, TENDERO, VENDEDOR */}
             {hasPermission('inventory.view') && (
               <Nav.Link as={Link} to="/inventory">Inventarios</Nav.Link>

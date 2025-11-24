@@ -2,11 +2,12 @@
  * Servicio API - Cliente HTTP para consumir microservicios
  */
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import { MS_AUTH_URL, MS_GEO_URL, MS_USER_URL, MS_REPORT_URL, MS_PRODUCT_URL } from '../config';
 
 // Crear instancia de axios
 const api = axios.create({
-  timeout: 10000,
+  timeout: 120000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -35,6 +36,29 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
+    } else if (error.response?.status === 502 || error.response?.status === 504) {
+      // Error de Gateway (Backend no disponible)
+      console.error('❌ Error de Gateway:', error.response.status);
+      const errorMessage = '⚠️ El servidor no responde. Por favor verifica tu conexión o intenta más tarde.';
+      error.message = errorMessage;
+      // Mostrar toast de error (evitar duplicados verificando si ya existe uno)
+      if (!document.querySelector('.Toastify__toast--error')) {
+        toast.error(errorMessage, {
+          autoClose: 5000,
+          position: 'top-right'
+        });
+      }
+    } else if (!error.response) {
+      // Error de red (sin respuesta del servidor)
+      console.error('❌ Error de red:', error.message);
+      const errorMessage = '⚠️ Error de conexión. Por favor verifica tu conexión a internet.';
+      error.message = errorMessage;
+      if (!document.querySelector('.Toastify__toast--error')) {
+        toast.error(errorMessage, {
+          autoClose: 5000,
+          position: 'top-right'
+        });
+      }
     }
     return Promise.reject(error);
   }
@@ -266,7 +290,7 @@ export const visitsService = {
     if (filters.end_date) params.end_date = filters.end_date;
     if (filters.skip) params.skip = filters.skip;
     if (filters.limit) params.limit = filters.limit;
-    
+
     const response = await api.get(`${MS_USER_URL}/visits`, { params });
     return response.data;
   },
@@ -431,7 +455,7 @@ export const productService = {
     const response = await api.delete(`${MS_PRODUCT_URL}/${id}`);
     return response.data;
   }
-  
+
 };
 
 // ============================================================
