@@ -29,8 +29,8 @@ const colorPalette = {
   infoBorder: 'rgba(13, 202, 240, 1)',
   warning: 'rgba(255, 193, 7, 0.85)',
   warningBorder: 'rgba(255, 193, 7, 1)',
-  danger: 'rgba(220, 53, 69, 0.85)',
-  dangerBorder: 'rgba(220, 53, 69, 1)',
+  danger: 'rgba(220, 76, 100, 0.85)',
+  dangerBorder: 'rgba(220, 76, 100, 1)',
   success: 'rgba(25, 135, 84, 0.85)',
   successBorder: 'rgba(25, 135, 84, 1)',
 };
@@ -192,9 +192,19 @@ const TopProductsPage = () => {
   }), [data]);
 
   const getSeverityColor = (value) => {
-    if (value >= 80) return 'danger';
-    if (value >= 40) return 'warning';
+    if (value >= 80) return 'warning';  // Cambiado de 'danger' a 'warning' para rojo menos intenso
+    if (value >= 40) return 'info';     // Cambiado de 'warning' a 'info' para mejor gradación
     return 'success';
+  };
+  
+  const getSeverityBadgeStyle = (value) => {
+    if (value >= 80) {
+      return { backgroundColor: '#f8a5a5', color: '#721c24', border: '1px solid #e57373' }; // Rojo suave
+    }
+    if (value >= 40) {
+      return { backgroundColor: '#ffe69c', color: '#856404', border: '1px solid #ffc107' }; // Amarillo suave
+    }
+    return { backgroundColor: '#a3e4d7', color: '#155724', border: '1px solid #28a745' }; // Verde suave
   };
 
   return (
@@ -325,9 +335,11 @@ const TopProductsPage = () => {
                     {data.items.map((item) => (
                       <Badge
                         key={item.product_id}
-                        bg={getSeverityColor(item.total_units_needed)}
                         className="p-2"
-                        style={{ fontSize: '0.95rem' }}
+                        style={{ 
+                          fontSize: '0.95rem',
+                          ...getSeverityBadgeStyle(item.total_units_needed)
+                        }}
                       >
                         #{item.rank} · {item.product_name} · {item.total_units_needed.toFixed(1)} u
                       </Badge>
@@ -385,7 +397,9 @@ const TopProductsPage = () => {
                             </td>
                             <td>{item.total_current_stock.toFixed(1)} u</td>
                             <td>
-                              <Badge bg={getSeverityColor(item.total_units_needed)}>
+                              <Badge 
+                                style={getSeverityBadgeStyle(item.total_units_needed)}
+                              >
                                 {item.total_units_needed.toFixed(1)} u
                               </Badge>
                             </td>

@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { APP_CONFIG } from '../config';
 
 const Navbar = () => {
-  const { user, logout, hasPermission } = useAuth();
+  const { user, logout, hasPermission, isTendero, isVendedor, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {

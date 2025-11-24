@@ -398,6 +398,7 @@ export const reportService = {
     return response.data;
   },
 
+
   /**
    * Obtiene el historial de ventas de un tendero específico
    * permitiendo filtros por rango de fechas y opciones de paginación.
